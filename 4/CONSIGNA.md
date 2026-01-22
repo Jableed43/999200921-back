@@ -13,7 +13,7 @@ Desarrollar un sistema simplificado de administración de concesionario que demu
 1. **Auto** (Clase Base)
    - Propiedades: motor, chasis, ruedas, precio, patente, fechaAlta, fechaVenta
    - Métodos: encender(), apagar(), conducir()
-   - Getters/Setters: getPrecio, setPrecio, getFechaAlta, getFechaVenta, setFechaVenta, getPatente, setPatente
+   - Getters/Setters: getFechaAlta, getFechaVenta, setFechaVenta
    - Validación: Verifica compatibilidad entre tipo de motor y tipo de combustible
 
 2. **Concesionario** (Sistema Administrador)
