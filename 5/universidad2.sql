@@ -41,8 +41,7 @@ CREATE TABLE `estudiante` (
 --
 
 LOCK TABLES `estudiante` WRITE;
-/*!40000 ALTER TABLE `estudiante` DISABLE KEYS */;
-INSERT INTO `estudiante` VALUES (1,'javier','lopez','jlopez@gmail.com','1992-09-10','2026-01-27 00:44:49'),(2,'matias','riera','matr@gmail.com','1991-06-24','2026-01-27 00:49:03'),(3,'theo','saravia','theosaravia@gmail.com','2005-06-13','2026-01-27 00:49:03'),(4,'angel','raddino','angelRaddino@gmail.com','2005-08-15','2026-01-27 00:49:03');
+/*!40000 ALTER TABLE `estudiante` DISABLE KEYS */;INSERT INTO `estudiante` VALUES (1,'javier','lopez','jlopez@gmail.com','1992-09-10','2026-01-27 00:44:49'),(2,'matias','riera','matr@gmail.com','1991-06-24','2026-01-27 00:49:03'),(3,'theo','saravia','theosaravia@gmail.com','2005-06-13','2026-01-27 00:49:03'),(4,'angel','raddino','angelRaddino@gmail.com','2005-08-15','2026-01-27 00:49:03'),(5,'marcelo','villagra','marcevillagra@gmail.com','1975-09-23','2026-01-27 19:11:03');
 /*!40000 ALTER TABLE `estudiante` ENABLE KEYS */;
 UNLOCK TABLES;
 
