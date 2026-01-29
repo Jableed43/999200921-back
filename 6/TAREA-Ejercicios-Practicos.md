@@ -51,6 +51,9 @@ Escribe una consulta que muestre nombre, apellido y la edad calculada a partir d
 #### 2.1 Estudiantes nacidos después del año 2000
 Escribe una consulta que muestre los estudiantes nacidos después del año 2000.
 
+select * from estudiante
+where YEAR(fechaNacimiento) > 2000
+
 #### 2.2 Materias con código que empieza con "PROG"
 Escribe una consulta que muestre las materias cuyo código empiece con "PROG" (usa `LIKE`).
 
@@ -64,7 +67,7 @@ Escribe una consulta que muestre las inscripciones con nota mayor a 8, incluyend
 
 ### Ejercicio 3: INNER JOIN
 
-#### 3.1 Estudiantes con sus materias inscritas
+#### 3.1 Estudiantes con sus materias inscriptas
 Escribe una consulta usando `INNER JOIN` que muestre:
 - Nombre y apellido del estudiante
 - Nombre de la materia
@@ -73,14 +76,19 @@ Escribe una consulta usando `INNER JOIN` que muestre:
 
 **Resultado esperado:** Solo estudiantes que tienen inscripciones.
 
-#### 3.2 Materias con estudiantes inscritos
+#### 3.2 Materias con estudiantes inscriptos
 Escribe una consulta usando `INNER JOIN` que muestre:
 - Nombre de la materia
 - Código de la materia
 - Nombre y apellido del estudiante
 - Nota
 
-**Resultado esperado:** Solo materias que tienen estudiantes inscritos.
+**Resultado esperado:** Solo materias que tienen estudiantes inscriptos.
+
+select materia.nombre AS materia, materia.codigo, estudiante.nombre, estudiante.apellido, inscripciones.nota
+from inscripciones
+inner join estudiante on inscripciones.idestudiante = estudiante.idestudiante
+inner join materia on inscripciones.idmateria = materia.idmateria
 
 #### 3.3 Estudiantes con promedio de notas
 Escribe una consulta que calcule el promedio de notas de cada estudiante que tiene al menos una nota. Muestra:
@@ -88,7 +96,18 @@ Escribe una consulta que calcule el promedio de notas de cada estudiante que tie
 - Cantidad de materias con nota
 - Promedio de notas
 
-**Pista:** Usa `INNER JOIN`, `GROUP BY`, `AVG()` y `COUNT()`.
+**Pista:** Usa `INNER JOIN`, `GROUP BY`, `AVG()`, `ROUND(VALOR, 2)` y `COUNT()`.
+
+select e.nombre, e.apellido,
+	COUNT(i.nota) AS cantidad_materias,
+	ROUND(AVG(i.nota),2) AS promedio_nota
+    from estudiante e
+	inner join inscripciones i on e.idestudiante = i.idestudiante
+    -- la validacion se hace en el where
+    where i.nota IS NOT NULL
+    -- El group by es necesario cuando en la tabla resultante queremos que se identifique mas de una tabla
+    -- x ej si mostraramos materia, deberiamos agrupar tambien por el PK de materia
+	GROUP BY e.idestudiante
 
 ---
 
@@ -101,6 +120,11 @@ Escribe una consulta usando `LEFT JOIN` que muestre:
 - Nota (será NULL si no tiene inscripciones)
 
 **Resultado esperado:** Debe mostrar 30 estudiantes, algunos con NULL en materia y nota.
+
+select estudiante.nombre, estudiante.apellido, materia.nombre as materia, inscripciones.nota
+from estudiante
+left join inscripciones on estudiante.idestudiante = inscripciones.idestudiante
+left join materia on inscripciones.idmateria = materia.idmateria
 
 #### 4.2 Estudiantes sin inscripciones
 Escribe una consulta usando `LEFT JOIN` y `WHERE IS NULL` que muestre los estudiantes que NO tienen ninguna inscripción.
@@ -127,16 +151,25 @@ Escribe una consulta usando `RIGHT JOIN` que muestre:
 
 **Resultado esperado:** Debe mostrar 30 materias, algunas con NULL en estudiante y nota.
 
-#### 5.2 Materias sin estudiantes inscritos
+#### 5.2 Materias sin estudiantes inscriptos
 Escribe una consulta usando `RIGHT JOIN` y `WHERE IS NULL` que muestre las materias que NO tienen ningún estudiante inscrito.
 
 **Resultado esperado:** Debe mostrar algunas materias (las que no tienen inscripciones).
+
+** left **
+select materia.nombre, materia.codigo, materia.idmateria from materia
+left join inscripciones on materia.idmateria = inscripciones.idmateria
+where inscripciones.idinscripcion is null
+** right **
+select materia.nombre, materia.codigo, materia.idmateria from inscripciones
+right join materia on inscripciones.idmateria = materia.idmateria
+where inscripciones.idinscripcion is null
 
 #### 5.3 Cantidad de estudiantes por materia
 Escribe una consulta que muestre:
 - Nombre de la materia
 - Código de la materia
-- Cantidad de estudiantes inscritos (0 si no tiene estudiantes)
+- Cantidad de estudiantes inscriptos (0 si no tiene estudiantes)
 
 **Pista:** Usa `RIGHT JOIN` y `COUNT()` con `GROUP BY`.
 
@@ -153,12 +186,21 @@ Escribe una consulta que muestre:
 - Nota mínima
 
 #### 6.2 Top 5 materias más populares
-Escribe una consulta que muestre las 5 materias con más estudiantes inscritos:
+Escribe una consulta que muestre las 5 materias con más estudiantes inscriptos:
 - Nombre de la materia
 - Código
-- Cantidad de estudiantes inscritos
+- Cantidad de estudiantes inscriptos
 
 **Pista:** Usa `GROUP BY`, `COUNT()` y `ORDER BY` con `LIMIT`.
+
+select materia.nombre, materia.codigo,
+	COUNT(inscripciones.idestudiante) AS cantidad_estudiantes
+    from materia
+    left join inscripciones on materia.idmateria = inscripciones.idmateria
+    group by materia.idmateria, materia.nombre, materia.codigo
+    order by cantidad_estudiantes DESC
+
+**Investigar como se puede respestar el rank del top 3 materias**
 
 #### 6.3 Estudiantes con mejor promedio
 Escribe una consulta que muestre los 3 estudiantes con mejor promedio de notas:
@@ -173,14 +215,14 @@ Escribe una consulta que muestre los 3 estudiantes con mejor promedio de notas:
 ### Ejercicio 7: GROUP BY y HAVING
 
 #### 7.1 Materias con más de 3 estudiantes
-Escribe una consulta que muestre las materias que tienen más de 3 estudiantes inscritos:
+Escribe una consulta que muestre las materias que tienen más de 3 estudiantes inscriptos:
 - Nombre de la materia
 - Cantidad de estudiantes
 
 **Pista:** Usa `GROUP BY` y `HAVING COUNT() > 3`.
 
-#### 7.2 Estudiantes inscritos en más de 2 materias
-Escribe una consulta que muestre los estudiantes que están inscritos en más de 2 materias:
+#### 7.2 Estudiantes inscriptos en más de 2 materias
+Escribe una consulta que muestre los estudiantes que están inscriptos en más de 2 materias:
 - Nombre y apellido
 - Cantidad de materias
 
@@ -274,7 +316,7 @@ Escribe una consulta que muestre para cada materia:
 - Diferencia entre mejor y peor nota
 
 #### 10.3 Estudiantes que están en todas las materias de programación
-Escribe una consulta que muestre los estudiantes que están inscritos en TODAS las materias cuyo código empiece con "PROG":
+Escribe una consulta que muestre los estudiantes que están inscriptos en TODAS las materias cuyo código empiece con "PROG":
 - Nombre y apellido
 - Cantidad de materias PROG en las que está inscrito
 
