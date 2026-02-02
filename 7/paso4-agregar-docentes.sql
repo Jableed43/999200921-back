@@ -117,35 +117,4 @@ UPDATE `materia`
 SET `docente_id` = 3 
 WHERE `docente_id` IS NULL AND `idmateria` % 3 = 2;
 
--- ============================================
--- VERIFICAR RESULTADOS
--- ============================================
-
--- Ver docentes creados
-SELECT * FROM docentes ORDER BY apellido;
-
--- Ver materias con sus docentes
-SELECT 
-    m.nombre AS materia,
-    m.codigo,
-    CONCAT(d.nombre, ' ', d.apellido) AS docente,
-    d.especialidad
-FROM materia m
-LEFT JOIN docentes d ON m.docente_id = d.iddocente
-ORDER BY m.nombre;
-
--- Contar materias por docente
-SELECT 
-    CONCAT(d.nombre, ' ', d.apellido) AS docente,
-    COUNT(m.idmateria) AS cantidad_materias
-FROM docentes d
-LEFT JOIN materia m ON d.iddocente = m.docente_id
-GROUP BY d.iddocente, d.nombre, d.apellido
-ORDER BY cantidad_materias DESC;
-
--- ============================================
--- RESTAURAR CONFIGURACIÓN: Habilitar Safe Updates
--- ============================================
--- Restauramos Safe Updates para mantener la seguridad en futuras operaciones
-
 SET SQL_SAFE_UPDATES = 1;
