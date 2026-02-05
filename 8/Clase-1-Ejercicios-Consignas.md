@@ -168,7 +168,7 @@ db.materias.insertMany([
 
 #### Ejercicio R1
 **Consigna**: Ver todos los estudiantes de la colección.
-
+db.estudiantes.find()
 **💡 Pista**: Usa `find()` sin parámetros.
 
 ---
@@ -177,7 +177,7 @@ db.materias.insertMany([
 **Consigna**: Ver todos los estudiantes con formato legible (más fácil de leer).
 
 **💡 Pista**: Usa `find()` seguido de `.pretty()`.
-
+db.estudiantes.find().pretty()
 ---
 
 #### Ejercicio R3
@@ -189,7 +189,7 @@ db.materias.insertMany([
 
 #### Ejercicio R4
 **Consigna**: Buscar un estudiante cuyo nombre sea exactamente "Ana".
-
+db.estudiantes.find({ nombre: "Ana" })
 **💡 Pista**: Usa `findOne()` con un filtro `{ nombre: "Ana" }`.
 
 ---
@@ -203,7 +203,7 @@ db.materias.insertMany([
 
 #### Ejercicio R6
 **Consigna**: Contar cuántos estudiantes hay en total en la colección.
-
+db.materias.countDocuments()
 **💡 Pista**: Usa `countDocuments()` sin parámetros.
 
 ---
@@ -219,7 +219,7 @@ db.materias.insertMany([
 **Consigna**: Buscar todos los estudiantes que viven en "Buenos Aires".
 
 **💡 Pista**: Usa `find()` con un filtro `{ ciudad: "Buenos Aires" }`.
-
+db.estudiantes.find({ ciudad: "Buenos Aires" })
 ---
 
 #### Ejercicio R9
@@ -235,9 +235,9 @@ db.materias.insertMany([
 **Consigna**: Actualizar la edad del estudiante llamado "Ana" a 23 años.
 
 **💡 Pista**: Usa `updateOne()` con:
-- Filtro: `{ nombre: "Ana" }`
+- Filtro: `email`
 - Operador: `$set` para establecer el nuevo valor
-
+`
 ---
 
 #### Ejercicio U2
@@ -264,10 +264,10 @@ db.materias.insertMany([
 ### DELETE - Eliminar Documentos
 
 #### Ejercicio D1
-**Consigna**: Eliminar el estudiante llamado "Roberto" (el que insertaste en el ejercicio C1).
+**Consigna**: Eliminar un estudiante.
 
 **💡 Pista**: Usa `deleteOne()` con un filtro por nombre.
-
+db.estudiantes.deleteOne({ _id: ObjectId('6983dac40a52a954e5c1ad80') })
 ---
 
 #### Ejercicio D2
@@ -285,21 +285,21 @@ db.materias.insertMany([
 **Consigna**: Buscar todos los estudiantes que tienen más de 22 años.
 
 **💡 Pista**: Usa el operador `$gt` (greater than) dentro del filtro: `{ edad: { $gt: 22 } }`.
-
+db.estudiantes.find({ edad: { $gt: 22 } })
 ---
 
 #### Ejercicio R11
 **Consigna**: Buscar todos los estudiantes que tienen 21 años o menos.
 
 **💡 Pista**: Usa el operador `$lte` (less than or equal) dentro del filtro.
-
+db.estudiantes.find({ edad: { $lte: 21 } })
 ---
 
 #### Ejercicio R12
 **Consigna**: Buscar todos los estudiantes que tienen entre 20 y 25 años (inclusive ambos).
 
 **💡 Pista**: Usa los operadores `$gte` (greater than or equal) y `$lte` juntos en el mismo campo.
-
+db.estudiantes.find({ edad: { $gte: 20, $lte: 25 } })
 ---
 
 #### Ejercicio R13
@@ -331,7 +331,7 @@ db.materias.insertMany([
 **💡 Pista**: Usa `updateMany()` con:
 - Filtro vacío `{}` para afectar a todos
 - Operador `$inc` (increment) para aumentar el valor numérico
-
+db.estudiantes.updateMany({}, {$inc: { edad: 1 }})
 ---
 
 #### Ejercicio U6
@@ -347,7 +347,7 @@ db.materias.insertMany([
 **💡 Pista**: Usa `updateMany()` con:
 - Filtro: `{ activo: false }`
 - Operador: `$set` para establecer `activo: true`
-
+db.estudiantes.updateMany({}, {$inc: { edad: 1 }})
 ---
 
 #### Ejercicio U8
@@ -390,7 +390,7 @@ db.materias.insertMany([
 **Consigna**: Buscar todos los estudiantes que están activos Y tienen más de 22 años.
 
 **💡 Pista**: Puedes usar múltiples condiciones en el mismo objeto de filtro, o usar el operador `$and` explícitamente.
-
+db.estudiantes.find({ $and: [ {activo: true}, {edad: { $gt: 22 }} ] })
 ---
 
 #### Ejercicio R17
@@ -404,7 +404,8 @@ db.materias.insertMany([
 **Consigna**: Buscar todos los estudiantes que viven en "Buenos Aires", "Córdoba" o "Rosario".
 
 **💡 Pista**: Usa el operador `$in` con un array de valores: `{ ciudad: { $in: ["Buenos Aires", "Córdoba", "Rosario"] } }`.
-
+db.estudiantes.find({ ciudad: { $in: ["Buenos Aires", "Córdoba", "Rosario"] } })
+db.estudiantes.find({ $or: [ { ciudad: "Buenos Aires"}, {ciudad: "Córdoba"}, {ciudad: "Rosario"}] })
 ---
 
 #### Ejercicio R19
