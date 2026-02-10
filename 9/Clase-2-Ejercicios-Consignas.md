@@ -181,6 +181,7 @@ db.materias.insertMany([
 
 **💡 Pista**: Usa `$and` con un array de condiciones: `$and: [{ activo: true }, { edad: { $gt: 22 } }]`
 
+db.estudiantes.find({ $and: [{activo: true}, {edad: { $gt: 22 }}] })
 ---
 
 ### Ejercicio A2: $and Implícito
@@ -188,6 +189,7 @@ db.materias.insertMany([
 
 **💡 Pista**: Simplemente coloca múltiples condiciones en el mismo objeto de consulta.
 
+b.estudiantes.find({ activo: true, edad: {$gt: 22} } )
 ---
 
 ### Ejercicio A3: Múltiples Condiciones con $and
@@ -195,6 +197,7 @@ db.materias.insertMany([
 
 **💡 Pista**: Usa `$and` con tres condiciones, y para el rango de edad usa `$gte` y `$lte`.
 
+db.estudiantes.find({ $and: [ {ciudad: "Buenos Aires"}, { activo: true }, { edad: { $gte: 20, $lte: 25 } } ] })
 ---
 
 ### Ejercicio A4: $and con Mismo Campo
@@ -209,6 +212,8 @@ db.materias.insertMany([
 
 **💡 Pista**: Usa `$and` que contiene un `$or` dentro.
 
+db.estudiantes.find({ $and: [ { activo: true }, { $or: [ { ciudad: "Buenos Aires" }, { edad: { $gt: 25 } } ] } ] })
+
 ---
 
 ## 🎯 FASE 2: Operador $or (Nivel Intermedio)
@@ -218,12 +223,17 @@ db.materias.insertMany([
 
 **💡 Pista**: Usa `$or` con un array de dos condiciones: `$or: [{ ciudad: "Buenos Aires" }, { ciudad: "Córdoba" }]`
 
+db.estudiantes.find({ $or: [ { ciudad: "Buenos Aires" }, { ciudad: "Córdoba" } ] })
+
 ---
 
 ### Ejercicio O2: $or con Múltiples Opciones
 **Consigna**: Buscar estudiantes que viven en "Buenos Aires", "Córdoba" **O** "Rosario".
 
 **💡 Pista**: Agrega una tercera condición al array de `$or`.
+
+
+db.estudiantes.find({ $or: [ { ciudad: "Buenos Aires" }, { ciudad: "Córdoba" }, { ciudad: "Rosario" } ] })
 
 ---
 
@@ -239,6 +249,7 @@ db.materias.insertMany([
 
 **💡 Pista**: `$in` es más eficiente cuando todas las condiciones son sobre el mismo campo con igualdad: `{ ciudad: { $in: ["Buenos Aires", "Córdoba", "Rosario"] } }`
 
+db.estudiantes.find({ ciudad: { $in: [ "Buenos Aires", "Córdoba", "Rosario" ] } })
 ---
 
 ### Ejercicio O4B: $nin - Excluir Múltiples Valores
@@ -246,6 +257,8 @@ db.materias.insertMany([
 
 **💡 Pista**: `$nin` excluye documentos donde el campo tiene alguno de los valores especificados: `{ ciudad: { $nin: ["Buenos Aires", "Córdoba", "Rosario"] } }`
 
+
+db.estudiantes.find({ ciudad: { $nin: [ "Buenos Aires", "Córdoba", "Rosario" ] } })
 ---
 
 ### Ejercicio O4C: $nin vs $nor
@@ -286,6 +299,7 @@ db.materias.insertMany([
 
 **💡 Pista**: Usa `$nor` con condiciones sobre diferentes campos.
 
+db.estudiantes.find({ $nor: [ { activo: true }, {edad: {$gt: 25}} ] })
 ---
 
 ### Ejercicio N3: $not con Operador
@@ -293,6 +307,7 @@ db.materias.insertMany([
 
 **💡 Pista**: `$not` invierte una condición: `{ edad: { $not: { $gt: 22 } } }`
 
+db.estudiantes.find({ edad: { $not: { $gt: 22 } } })
 ---
 
 ### Ejercicio N4: $not con Regex
@@ -353,6 +368,7 @@ db.materias.insertMany([
 
 **💡 Pista**: `{ telefono: { $exists: true } }`
 
+db.estudiantes.find( {telefono: { $exists: true }} )
 ---
 
 ### Ejercicio E2: $exists - Campo No Existe
@@ -360,6 +376,7 @@ db.materias.insertMany([
 
 **💡 Pista**: `{ telefono: { $exists: false } }`
 
+db.estudiantes.find( {telefono: { $exists: false }} )
 ---
 
 ### Ejercicio E3: $exists Combinado con Otras Condiciones
@@ -373,6 +390,8 @@ db.materias.insertMany([
 **Consigna**: Buscar estudiantes donde el campo "telefono" es de tipo string.
 
 **💡 Pista**: `{ telefono: { $type: "string" } }`
+
+db.estudiantes.find({ telefono: {$type: "string"} })
 
 ---
 
@@ -388,6 +407,8 @@ db.materias.insertMany([
 
 **💡 Pista**: `{ email: { $regex: /^[^\s@]+@[^\s@]+\.[^\s@]+$/i } }`
 
+
+**db.estudiantes.find({ email: { $regex: /^[^\s@]+@[^\s@]+\.[^\s@]+$/i } })**
 ---
 
 ### Ejercicio R2: $regex - Buscar Nombres que Empiezan con Letra Específica
@@ -395,12 +416,15 @@ db.materias.insertMany([
 
 **💡 Pista**: `{ nombre: { $regex: /^[ML]/i } }`
 
+
+db.estudiantes.find({ nombre: { $regex: /^[ML]/i } })
 ---
 
 ### Ejercicio R3: $regex - Buscar Apellidos que Terminan con Texto
 **Consigna**: Buscar estudiantes cuyo apellido termina con "ez" (sin distinguir mayúsculas/minúsculas) usando `$regex`.
 
-**💡 Pista**: Usa el símbolo `$` para indicar el fin del string: `{ apellido: { $regex: /ez$/i } }`
+**💡 Pista**: Usa el símbolo `$` para indicar el fin del string: `{ apellido: { $regex: /z$/i } }`
+db.estudiantes.find({ apellido: {$regex: /z$/i } })
 
 ---
 
