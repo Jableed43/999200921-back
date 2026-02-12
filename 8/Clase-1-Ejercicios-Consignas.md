@@ -4,6 +4,8 @@
 **Base de Datos**: `escuela`  
 **Colecciones**: `estudiantes` y `materias`
 
+> **Nota**: Este archivo contiene las consignas de los ejercicios. Las soluciones están disponibles en `Clase-1-Ejercicios-Practicos.md`.
+
 ---
 
 ## 📋 Preparación: Set de Datos
@@ -168,7 +170,7 @@ db.materias.insertMany([
 
 #### Ejercicio R1
 **Consigna**: Ver todos los estudiantes de la colección.
-db.estudiantes.find()
+
 **💡 Pista**: Usa `find()` sin parámetros.
 
 ---
@@ -177,7 +179,7 @@ db.estudiantes.find()
 **Consigna**: Ver todos los estudiantes con formato legible (más fácil de leer).
 
 **💡 Pista**: Usa `find()` seguido de `.pretty()`.
-db.estudiantes.find().pretty()
+
 ---
 
 #### Ejercicio R3
@@ -189,7 +191,7 @@ db.estudiantes.find().pretty()
 
 #### Ejercicio R4
 **Consigna**: Buscar un estudiante cuyo nombre sea exactamente "Ana".
-db.estudiantes.find({ nombre: "Ana" })
+
 **💡 Pista**: Usa `findOne()` con un filtro `{ nombre: "Ana" }`.
 
 ---
@@ -203,7 +205,7 @@ db.estudiantes.find({ nombre: "Ana" })
 
 #### Ejercicio R6
 **Consigna**: Contar cuántos estudiantes hay en total en la colección.
-db.materias.countDocuments()
+
 **💡 Pista**: Usa `countDocuments()` sin parámetros.
 
 ---
@@ -219,7 +221,7 @@ db.materias.countDocuments()
 **Consigna**: Buscar todos los estudiantes que viven en "Buenos Aires".
 
 **💡 Pista**: Usa `find()` con un filtro `{ ciudad: "Buenos Aires" }`.
-db.estudiantes.find({ ciudad: "Buenos Aires" })
+
 ---
 
 #### Ejercicio R9
@@ -235,9 +237,9 @@ db.estudiantes.find({ ciudad: "Buenos Aires" })
 **Consigna**: Actualizar la edad del estudiante llamado "Ana" a 23 años.
 
 **💡 Pista**: Usa `updateOne()` con:
-- Filtro: `email`
+- Filtro: `{ nombre: "Ana" }`
 - Operador: `$set` para establecer el nuevo valor
-`
+
 ---
 
 #### Ejercicio U2
@@ -264,10 +266,10 @@ db.estudiantes.find({ ciudad: "Buenos Aires" })
 ### DELETE - Eliminar Documentos
 
 #### Ejercicio D1
-**Consigna**: Eliminar un estudiante.
+**Consigna**: Eliminar el estudiante llamado "Roberto" (el que insertaste en el ejercicio C1).
 
 **💡 Pista**: Usa `deleteOne()` con un filtro por nombre.
-db.estudiantes.deleteOne({ _id: ObjectId('6983dac40a52a954e5c1ad80') })
+
 ---
 
 #### Ejercicio D2
@@ -285,21 +287,21 @@ db.estudiantes.deleteOne({ _id: ObjectId('6983dac40a52a954e5c1ad80') })
 **Consigna**: Buscar todos los estudiantes que tienen más de 22 años.
 
 **💡 Pista**: Usa el operador `$gt` (greater than) dentro del filtro: `{ edad: { $gt: 22 } }`.
-db.estudiantes.find({ edad: { $gt: 22 } })
+
 ---
 
 #### Ejercicio R11
 **Consigna**: Buscar todos los estudiantes que tienen 21 años o menos.
 
 **💡 Pista**: Usa el operador `$lte` (less than or equal) dentro del filtro.
-db.estudiantes.find({ edad: { $lte: 21 } })
+
 ---
 
 #### Ejercicio R12
 **Consigna**: Buscar todos los estudiantes que tienen entre 20 y 25 años (inclusive ambos).
 
 **💡 Pista**: Usa los operadores `$gte` (greater than or equal) y `$lte` juntos en el mismo campo.
-db.estudiantes.find({ edad: { $gte: 20, $lte: 25 } })
+
 ---
 
 #### Ejercicio R13
@@ -331,7 +333,7 @@ db.estudiantes.find({ edad: { $gte: 20, $lte: 25 } })
 **💡 Pista**: Usa `updateMany()` con:
 - Filtro vacío `{}` para afectar a todos
 - Operador `$inc` (increment) para aumentar el valor numérico
-db.estudiantes.updateMany({}, {$inc: { edad: 1 }})
+
 ---
 
 #### Ejercicio U6
@@ -347,7 +349,7 @@ db.estudiantes.updateMany({}, {$inc: { edad: 1 }})
 **💡 Pista**: Usa `updateMany()` con:
 - Filtro: `{ activo: false }`
 - Operador: `$set` para establecer `activo: true`
-db.estudiantes.updateMany({}, {$inc: { edad: 1 }})
+
 ---
 
 #### Ejercicio U8
@@ -356,6 +358,38 @@ db.estudiantes.updateMany({}, {$inc: { edad: 1 }})
 **💡 Pista**: Usa `updateMany()` con:
 - Filtro: `{ ciudad: "Buenos Aires" }`
 - Operador: `$set` para agregar el campo
+
+---
+
+#### Ejercicio U9
+**Consigna**: Eliminar el campo "telefono" del estudiante llamado "María" (si existe).
+
+**💡 Pista**: Usa `updateOne()` con:
+- Filtro: `{ nombre: "María" }`
+- Operador: `$unset` para eliminar el campo: `{ $unset: { telefono: "" } }`
+
+---
+
+#### Ejercicio U10
+**Consigna**: Primero, agregar un campo "materiasInscritas" (array vacío) al estudiante "Juan" usando `$set`. Luego, agregar "MAT101" al array usando `$push`.
+
+**💡 Pista**: 
+1. Primero: `updateOne({ nombre: "Juan" }, { $set: { materiasInscritas: [] } })`
+2. Luego: `updateOne({ nombre: "Juan" }, { $push: { materiasInscritas: "MAT101" } })`
+
+---
+
+#### Ejercicio U11
+**Consigna**: Agregar "PROG201" al array "materiasInscritas" del estudiante "Juan" (asumiendo que ya tiene el array creado).
+
+**💡 Pista**: Usa `updateOne()` con el operador `$push`: `{ $push: { materiasInscritas: "PROG201" } }`
+
+---
+
+#### Ejercicio U12
+**Consigna**: Eliminar "MAT101" del array "materiasInscritas" del estudiante "Juan".
+
+**💡 Pista**: Usa `updateOne()` con el operador `$pull`: `{ $pull: { materiasInscritas: "MAT101" } }`
 
 ---
 
@@ -390,7 +424,7 @@ db.estudiantes.updateMany({}, {$inc: { edad: 1 }})
 **Consigna**: Buscar todos los estudiantes que están activos Y tienen más de 22 años.
 
 **💡 Pista**: Puedes usar múltiples condiciones en el mismo objeto de filtro, o usar el operador `$and` explícitamente.
-db.estudiantes.find({ $and: [ {activo: true}, {edad: { $gt: 22 }} ] })
+
 ---
 
 #### Ejercicio R17
@@ -404,8 +438,7 @@ db.estudiantes.find({ $and: [ {activo: true}, {edad: { $gt: 22 }} ] })
 **Consigna**: Buscar todos los estudiantes que viven en "Buenos Aires", "Córdoba" o "Rosario".
 
 **💡 Pista**: Usa el operador `$in` con un array de valores: `{ ciudad: { $in: ["Buenos Aires", "Córdoba", "Rosario"] } }`.
-db.estudiantes.find({ ciudad: { $in: ["Buenos Aires", "Córdoba", "Rosario"] } })
-db.estudiantes.find({ $or: [ { ciudad: "Buenos Aires"}, {ciudad: "Córdoba"}, {ciudad: "Rosario"}] })
+
 ---
 
 #### Ejercicio R19
@@ -503,7 +536,7 @@ db.estudiantes.find({ $or: [ { ciudad: "Buenos Aires"}, {ciudad: "Córdoba"}, {c
 
 ### UPDATE Avanzado
 
-#### Ejercicio U9
+#### Ejercicio U13
 **Consigna**: Agregar un campo "tipo" con valor "avanzado" a todos los estudiantes que tienen más de 24 años.
 
 **💡 Pista**: Usa `updateMany()` con:
@@ -512,7 +545,7 @@ db.estudiantes.find({ $or: [ { ciudad: "Buenos Aires"}, {ciudad: "Córdoba"}, {c
 
 ---
 
-#### Ejercicio U10
+#### Ejercicio U14
 **Consigna**: Incrementar los créditos en 1 de todas las materias que tienen menos de 7 créditos.
 
 **💡 Pista**: Usa `updateMany()` con:
@@ -521,12 +554,41 @@ db.estudiantes.find({ $or: [ { ciudad: "Buenos Aires"}, {ciudad: "Córdoba"}, {c
 
 ---
 
-#### Ejercicio U11
+#### Ejercicio U15
 **Consigna**: Cambiar la ciudad de todos los estudiantes que viven en "Rosario" a "Santa Fe".
 
 **💡 Pista**: Usa `updateMany()` con:
 - Filtro: `{ ciudad: "Rosario" }`
 - Operador: `$set` para cambiar el valor del campo
+
+---
+
+#### Ejercicio U16
+**Consigna**: Eliminar el campo "telefono" de todos los estudiantes que viven en "Buenos Aires" (si existe).
+
+**💡 Pista**: Usa `updateMany()` con:
+- Filtro: `{ ciudad: "Buenos Aires" }`
+- Operador: `$unset` para eliminar el campo: `{ $unset: { telefono: "" } }`
+
+---
+
+#### Ejercicio U17
+**Consigna**: Agregar múltiples materias al array "materiasInscritas" del estudiante "María" en una sola operación: ["MAT101", "PROG201", "BD301"].
+
+**💡 Pista**: Usa `updateOne()` con `$push` y `$each`:
+```javascript
+{ $push: { materiasInscritas: { $each: ["MAT101", "PROG201", "BD301"] } } }
+```
+
+---
+
+#### Ejercicio U18
+**Consigna**: Eliminar múltiples materias del array "materiasInscritas" del estudiante "María": eliminar "MAT101" y "PROG201".
+
+**💡 Pista**: Usa `updateOne()` con `$pull` y `$in`:
+```javascript
+{ $pull: { materiasInscritas: { $in: ["MAT101", "PROG201"] } } }
+```
 
 ---
 
@@ -556,11 +618,11 @@ db.estudiantes.find({ $or: [ { ciudad: "Buenos Aires"}, {ciudad: "Córdoba"}, {c
 - `$nin` - No está en un array de valores
 
 ### Operadores de Actualización
-- `$set` - Establecer un valor (o agregar un campo nuevo)
-- `$inc` - Incrementar un valor numérico
-- `$unset` - Eliminar un campo
-- `$push` - Agregar un elemento a un array
-- `$pull` - Eliminar un elemento de un array
+- `$set` - Establecer un valor (o agregar un campo nuevo) - Ejercicios: U1, U2, U3, U4, U7, U8, U13, U15
+- `$inc` - Incrementar un valor numérico - Ejercicios: U5, U6, U14
+- `$unset` - Eliminar un campo - Ejercicios: U9, U16
+- `$push` - Agregar un elemento a un array - Ejercicios: U10, U11, U17
+- `$pull` - Eliminar un elemento de un array - Ejercicios: U12, U18
 
 ### Métodos y Funciones
 - `insertOne()` - Insertar un documento
@@ -587,7 +649,7 @@ Al finalizar estos ejercicios, deberías poder:
 - [ ] Contar documentos en una colección
 - [ ] Usar operadores de comparación ($gt, $lt, $gte, $lte, $ne)
 - [ ] Actualizar documentos individuales y múltiples
-- [ ] Usar operadores de actualización ($set, $inc)
+- [ ] Usar operadores de actualización ($set, $inc, $unset, $push, $pull)
 - [ ] Eliminar documentos individuales y múltiples
 - [ ] Usar operadores lógicos ($and, $or, $in)
 - [ ] Seleccionar campos específicos (proyección)

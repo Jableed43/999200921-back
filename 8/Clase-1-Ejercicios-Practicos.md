@@ -349,6 +349,45 @@ db.estudiantes.updateMany(
 );
 ```
 
+#### Ejercicio U9: Eliminar el campo "telefono" de un estudiante
+```javascript
+db.estudiantes.updateOne(
+  { nombre: "María" },
+  { $unset: { telefono: "" } }
+);
+```
+
+#### Ejercicio U10: Crear array y agregar elemento con $push
+```javascript
+// Paso 1: Crear el array vacío
+db.estudiantes.updateOne(
+  { nombre: "Juan" },
+  { $set: { materiasInscritas: [] } }
+);
+
+// Paso 2: Agregar un elemento al array
+db.estudiantes.updateOne(
+  { nombre: "Juan" },
+  { $push: { materiasInscritas: "MAT101" } }
+);
+```
+
+#### Ejercicio U11: Agregar elemento a un array existente
+```javascript
+db.estudiantes.updateOne(
+  { nombre: "Juan" },
+  { $push: { materiasInscritas: "PROG201" } }
+);
+```
+
+#### Ejercicio U12: Eliminar elemento de un array
+```javascript
+db.estudiantes.updateOne(
+  { nombre: "Juan" },
+  { $pull: { materiasInscritas: "MAT101" } }
+);
+```
+
 ---
 
 ### DELETE con Operadores
@@ -481,7 +520,7 @@ db.estudiantes.find(
 
 ### UPDATE Avanzado
 
-#### Ejercicio U9: Actualizar estudiantes mayores de 24 años, agregándoles un campo "tipo" con valor "avanzado"
+#### Ejercicio U13: Actualizar estudiantes mayores de 24 años, agregándoles un campo "tipo" con valor "avanzado"
 ```javascript
 db.estudiantes.updateMany(
   { edad: { $gt: 24 } },
@@ -489,7 +528,7 @@ db.estudiantes.updateMany(
 );
 ```
 
-#### Ejercicio U10: Incrementar créditos de materias con menos de 7 créditos
+#### Ejercicio U14: Incrementar créditos de materias con menos de 7 créditos
 ```javascript
 db.materias.updateMany(
   { creditos: { $lt: 7 } },
@@ -497,11 +536,47 @@ db.materias.updateMany(
 );
 ```
 
-#### Ejercicio U11: Cambiar la ciudad de estudiantes de "Rosario" a "Santa Fe"
+#### Ejercicio U15: Cambiar la ciudad de estudiantes de "Rosario" a "Santa Fe"
 ```javascript
 db.estudiantes.updateMany(
   { ciudad: "Rosario" },
   { $set: { ciudad: "Santa Fe" } }
+);
+```
+
+#### Ejercicio U16: Eliminar campo "telefono" de todos los estudiantes de Buenos Aires
+```javascript
+db.estudiantes.updateMany(
+  { ciudad: "Buenos Aires" },
+  { $unset: { telefono: "" } }
+);
+```
+
+#### Ejercicio U17: Agregar múltiples elementos a un array usando $push con $each
+```javascript
+db.estudiantes.updateOne(
+  { nombre: "María" },
+  { 
+    $push: { 
+      materiasInscritas: { 
+        $each: ["MAT101", "PROG201", "BD301"] 
+      } 
+    } 
+  }
+);
+```
+
+#### Ejercicio U18: Eliminar múltiples elementos de un array usando $pull con $in
+```javascript
+db.estudiantes.updateOne(
+  { nombre: "María" },
+  { 
+    $pull: { 
+      materiasInscritas: { 
+        $in: ["MAT101", "PROG201"] 
+      } 
+    } 
+  }
 );
 ```
 
@@ -524,10 +599,10 @@ db.estudiantes.deleteMany({
 | Fase | Nivel | Operaciones | Cantidad | Conceptos Clave |
 |------|-------|-------------|----------|-----------------|
 | **FASE 1** | Básico | CRUD completo | 20 ejercicios | insertOne, insertMany, find, findOne, updateOne, deleteOne, countDocuments |
-| **FASE 2** | Intermedio | READ, UPDATE, DELETE con operadores | 15 ejercicios | $gt, $lt, $gte, $lte, $eq, $ne, $inc, updateMany, deleteMany |
+| **FASE 2** | Intermedio | READ, UPDATE, DELETE con operadores | 19 ejercicios | $gt, $lt, $gte, $lte, $eq, $ne, $inc, $set, $unset, $push, $pull, updateMany, deleteMany |
 | **FASE 3** | Avanzado | Operadores lógicos, proyección, ordenamiento | 16 ejercicios | $and, $or, $in, proyección (1/0), sort, limit |
 
-**Total**: 51 ejercicios prácticos para la primera clase
+**Total**: 55 ejercicios prácticos para la primera clase
 
 ---
 
@@ -553,6 +628,7 @@ db.estudiantes.deleteMany({
 - ✅ **UPDATE**: Siempre usar `$set` para actualizar campos específicos
 - ✅ **DELETE**: `deleteOne()` elimina el primer documento que coincida, `deleteMany()` elimina todos
 - ✅ **Operadores**: `$gt`, `$lt`, `$gte`, `$lte` para comparaciones numéricas
+- ✅ **Operadores de actualización**: `$set` (establecer), `$inc` (incrementar), `$unset` (eliminar campo), `$push` (agregar a array), `$pull` (eliminar de array)
 - ✅ **Proyección**: `1` para incluir, `0` para excluir (no mezclar ambos en la misma consulta)
 - ✅ **Ordenamiento**: `1` ascendente, `-1` descendente
 
@@ -584,7 +660,7 @@ Al finalizar estos ejercicios, el estudiante debería poder:
 - [ ] Aplicar filtros básicos en consultas
 - [ ] Usar operadores de comparación ($gt, $lt, $gte, $lte, $eq, $ne)
 - [ ] Actualizar documentos (updateOne, updateMany)
-- [ ] Usar operadores de actualización ($set, $inc)
+- [ ] Usar operadores de actualización ($set, $inc, $unset, $push, $pull)
 - [ ] Eliminar documentos (deleteOne, deleteMany)
 - [ ] Usar operadores lógicos ($and, $or, $in)
 - [ ] Seleccionar campos específicos (proyección)
