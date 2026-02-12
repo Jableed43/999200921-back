@@ -267,6 +267,15 @@ Usa `$match` y `$count` para contar cuántos estudiantes están activos.
 ### Ejercicio P5: Contar ciudades diferentes
 Usa `$group` y `$count` para contar cuántas ciudades diferentes hay entre los estudiantes.
 
+db.estudiantes.aggregate([
+  {
+    $group: {
+      _id: "$ciudad"
+    }
+  },
+  { $count: "totalCiudades" }
+]);
+
 ### Ejercicio P6: Top 5 exámenes con mejor nota
 Usa `$sort` y `$limit` para obtener los 5 exámenes con mejor nota.
 
@@ -277,8 +286,12 @@ Usa `$sort` y `$limit` para obtener los 5 exámenes con mejor nota.
 ### Ejercicio A1: Calcular edad en 10 años
 Usa `$add` para calcular la edad que tendrán los estudiantes en 10 años. Muestra nombre, edad actual y edad futura.
 
+db.estudiantes.aggregate([ { $project: { nombre: 1, apellido: 1, edad: 1, edadEn10Años: { $add: [ "$edad", 10 ] } } } ])
+
 ### Ejercicio A2: Calcular nota final con bono
 Usa `$add` para calcular la nota final de un examen sumando la nota base y un bono fijo de 2 puntos adicionales.
+
+
 
 ### Ejercicio A3: Calcular diferencia de créditos
 Usa `$subtract` para calcular cuántos créditos le faltan a cada materia para llegar a 6 créditos (asumiendo que todas deben tener 6).
@@ -332,6 +345,36 @@ Usa `$round` para redondear el promedio de notas de entregas de cada estudiante 
 
 ### Ejercicio L1: Entregas con información de tarea
 Usa `$lookup` para traer la información de la tarea en cada entrega. Muestra estudiante, fecha de entrega y datos de la tarea.
+
+db.entregas.aggregate([
+  {
+    $lookup: {
+      from: "estudiantes",
+      localField: "estudianteId",
+      foreignField: "_id",
+      as: "estudianteInfo",
+    },
+  },
+  {
+    $lookup: {
+      from: "tareas",
+      localField: "tareaId",
+      foreignField: "_id",
+      as: "tareaInfo",
+    },
+  },
+  {
+    $project: {
+      "estudianteInfo.nombre": 1,
+      "estudianteInfo.apellido": 1,
+      fechaEntrega: 1,
+      "tareaInfo.titulo": 1,
+      "tareaInfo.descripcion": 1,
+      "tareaInfo.fechaLimite": 1,
+      nota: 1,
+    },
+  },
+]);
 
 ### Ejercicio L2: Exámenes con información de materia
 Usa `$lookup` para traer la información de la materia en cada examen. Muestra estudiante, fecha y datos de la materia.

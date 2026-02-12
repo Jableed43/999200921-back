@@ -324,6 +324,7 @@ db.estudiantes.find({ edad: { $not: { $gt: 22 } } })
 
 **💡 Pista**: `db.estudiantes.aggregate([{ $match: { activo: true } }])`
 
+db.estudiantes.aggregate([ { $match: {activo: true} } ])
 ---
 
 ### Ejercicio M2: $match con Múltiples Condiciones
@@ -331,6 +332,7 @@ db.estudiantes.find({ edad: { $not: { $gt: 22 } } })
 
 **💡 Pista**: Puedes combinar condiciones en `$match` igual que en `find()`.
 
+db.estudiantes.aggregate([ { $match: {activo: true, edad: { $gt: 20 } } } ])
 ---
 
 ### Ejercicio M3: $match con $or
@@ -338,6 +340,7 @@ db.estudiantes.find({ edad: { $not: { $gt: 22 } } })
 
 **💡 Pista**: `$match` acepta todos los operadores lógicos que funcionan en `find()`.
 
+db.estudiantes.aggregate([ { $match: { $or: [ { ciudad: "Buenos Aires" }, { ciudad: "Córdoba" } ] } } ])
 ---
 
 ### Ejercicio M4: $match seguido de $count
