@@ -1,7 +1,7 @@
 import express from 'express'
-import { PORT } from './config/config.js'
-import { connectDB } from './config/db.js'
-import productRouter from "./routes/productRoutes.js"
+import { PORT } from './src/config/config.js'
+import { connectDB } from './src/config/db.js'
+import productRouter from "./src/routes/productRoutes.js"
 
 const app = express()
 
