@@ -10,7 +10,8 @@ export const createProductService = async (productData) => {
 }
 
 export const getAllProductService = async () => {
-    const products = await Product.find()
+    //populate("category") hace un llamado a la categoria por el id de cada producto
+    const products = await Product.find().populate({ path: "category", select: "name" })
     return products
 }
 

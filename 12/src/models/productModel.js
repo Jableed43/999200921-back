@@ -55,7 +55,7 @@ const productSchema = new mongoose.Schema({
         }
     },
     // category
-    category: String,
+    category: { type: mongoose.Schema.Types.ObjectId, ref: "category", default: null },
     // highlighted
     highlighted: Boolean,
 
@@ -65,7 +65,7 @@ const productSchema = new mongoose.Schema({
         min: [1, "Profit rate must be grater than 1"]
     },
     image: String
-})
+}, { timestamps: true })
 
 
 productSchema.virtual("finalPrice").get(function () {
