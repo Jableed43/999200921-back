@@ -1,4 +1,4 @@
-import { createProductService, deleteProductService, getAllProductService, updateProductService } from "../services/productService.js"
+import { createProductService, deleteProductService, getAllProductService, getProductByIdService, updateProductService } from "../services/productService.js"
 import { handleError } from "../utils/errorHandler.js"
 
 export const createProduct = async (req, res) => {
@@ -41,5 +41,15 @@ export const deleteProduct = async (req, res) => {
     res.status(201).json(response)
     } catch (error) {
          handleError(error, res)
+    }
+}
+
+export const getProductById = async (req, res) => {
+    try {
+        const {id} = req.params
+        const product = await getProductByIdService(id)
+        res.status(200).json(product)
+    } catch (error) {
+        handleError(error, res)
     }
 }

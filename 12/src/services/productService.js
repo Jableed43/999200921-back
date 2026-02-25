@@ -1,6 +1,10 @@
+import { checkModelExist } from "../helpers/checkExist.js"
 import Product from "../models/productModel.js"
 
 export const createProductService = async (productData) => {
+    const {name} = productData
+    await checkModelExist(Product, {name}, false, 400, `Product ${name} already exists`)
+
     // creo instancia del producto
     const newProduct = new Product(productData)
     // guardo el producto
@@ -16,15 +20,7 @@ export const getAllProductService = async () => {
 }
 
 export const updateProductService = async (id, productData) => {
-    // directamente acepta el id
-    const productExist = await Product.findById(id)
-    // especifica el campo de busqueda y ademas podes añadir filtros
-    // await Product.findOne({_id: id})
-    if(!productExist){
-        const error = new Error("Product not found")
-        error.statusCode = 404
-        throw error
-    }
+    await checkModelExist(Product, {_id: id}, true, 404, "Product not found")
 
     // findByIdAndUpdate tiene 3 parametros
     // 1. Es el id
@@ -40,15 +36,16 @@ export const updateProductService = async (id, productData) => {
 }
 
 export const deleteProductService = async (id) => {
-    const productExist = await Product.findById(id)
-
-    if(!productExist){
-        const error = new Error("Product not found")
-        error.statusCode = 404
-        throw error
-    }
+    await checkModelExist(Product, {_id: id}, true, 404, "Product not found")
 
     const deleted = await Product.findByIdAndDelete(id)
 
     return { message: "Product deleted succesfully", data: deleted }
+}
+
+export const getProductByIdService = async (id) => {
+    
+    const product = await checkModelExist(Product, {_id: id}, true, 404, "Product not found")
+
+    return product
 }

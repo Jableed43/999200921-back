@@ -1,3 +1,4 @@
+import { checkModelExist } from "../helpers/checkExist.js";
 import Category from "../models/categoryModel.js";
 import Product from "../models/productModel.js";
 
@@ -7,14 +8,7 @@ export const getAllCategoryService = async () => {
 }
 
 export const createCategoryService = async (name) => {
-    console.log({name})
-   const exist = await Category.findOne(name)
-
-   if(exist){
-    const error = new Error("Category already exists")
-    error.statusCode = 400
-    throw error
-   }
+   await checkModelExist(Category, name, false, 400, "Category already exists")
 
    const newCategory = new Category(name)
    const response = await newCategory.save()
@@ -22,13 +16,7 @@ export const createCategoryService = async (name) => {
 }
 
 export const deleteCategoryService = async (id) => {
-    const exist = await Category.findById(id)
-
-    if(!exist){
-    const error = new Error("Category not found")
-    error.statusCode = 400
-    throw error
-   }
+    await checkModelExist(Category, {_id: id}, true, 404, "Category not found")
 
    const deleted = await Category.findByIdAndDelete(id)
 
