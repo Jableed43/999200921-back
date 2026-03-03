@@ -1,4 +1,5 @@
 import mongoose from 'mongoose'
+import bcrypt from 'bcrypt'
 
 const userSchema = new mongoose.Schema({
     //name
@@ -41,5 +42,17 @@ const userSchema = new mongoose.Schema({
     }
 
 }, {timestamps: true})
+
+userSchema.pre("save", async function() {
+    // Solo va a hashear la contraseña si ha sido modificada o es nueva
+    // En caso que el usuario modifique otra cosa que no sea la password
+    // evita que se re-hashee la password ya guardada
+    if(!this.isModified("password")){
+        return
+    }
+
+    // Encriptamos
+    this.password = bcrypt.hashSync(this.password, 10)
+})
 
 export default mongoose.model("user", userSchema)

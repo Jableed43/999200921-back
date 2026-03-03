@@ -1,5 +1,5 @@
 import { updateProductService } from "../services/productService.js"
-import { createUserService, deleteUserService, getUserByIdService, getUserService, updateUserService } from "../services/userService.js"
+import { createUserService, deleteUserService, getUserByIdService, getUserService, updateUserService, validateUserService } from "../services/userService.js"
 import { handleError } from "../utils/errorHandler.js"
 
 export const createUser = async (req, res) => {
@@ -47,6 +47,32 @@ export const getUserById = async (req, res) => {
         const {id} = req.params
         const user = await getUserByIdService(id)
         res.status(200).json(user)
+    } catch (error) {
+        handleError(error, res)
+    }
+}
+
+export const validateUser = async (req, res) => {
+    try {
+        const userData = req.body
+       const result = await validateUserService(userData)
+       res.status(200).json(result)
+    } catch (error) {
+        handleError(error, res)
+    }
+}
+
+export const logout = async (req, res) => {
+    try {
+        if(req.session){
+            console.log(req.session)
+            req.session.destroy()
+            res.clearCookie("connect.sid")
+        }
+
+        return res.status(200).json({
+            message: "Logged out successfully"
+        })
     } catch (error) {
         handleError(error, res)
     }

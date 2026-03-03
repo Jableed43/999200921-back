@@ -5,6 +5,7 @@ import productRouter from "./src/routes/productRoutes.js"
 import categoryRouter from './src/routes/categoryRoutes.js'
 import userRouter from './src/routes/userRoutes.js'
 import cors from 'cors'
+import session from 'express-session'
 
 const app = express()
 
@@ -15,6 +16,13 @@ app.use(cors({
 
 app.use(express.json())
 app.use(express.urlencoded({extended: true}))
+
+app.use(session({
+    secret: "secret",
+    resave: false, // Evita que la session se vuelva a guardar si no hay datos
+    saveUninitialized: false, // Evita que la sesion se guarde si no esta inicializada
+}))
+
 connectDB()
 
 app.use("/api/product", productRouter)
