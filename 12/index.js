@@ -6,6 +6,7 @@ import categoryRouter from './src/routes/categoryRoutes.js'
 import userRouter from './src/routes/userRoutes.js'
 import cors from 'cors'
 import session from 'express-session'
+import purchaseRouter from './src/routes/purchaseRoutes.js'
 
 const app = express()
 
@@ -28,6 +29,7 @@ connectDB()
 app.use("/api/product", productRouter)
 app.use("/api/category", categoryRouter)
 app.use("/api/user", userRouter)
+app.use("/api/purchase", purchaseRouter)
 
 app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`)
