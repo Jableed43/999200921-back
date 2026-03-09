@@ -1,0 +1,28 @@
+import express from 'express'
+import { PORT } from './src/config/config.js'
+import { connectDB } from './src/config/db.js'
+import productRouter from "./src/routes/productRoutes.js"
+import categoryRouter from './src/routes/categoryRoutes.js'
+import userRouter from './src/routes/userRoutes.js'
+import session from 'express-session'
+
+const app = express()
+
+app.use(express.json())
+app.use(express.urlencoded({extended: true}))
+
+app.use(session({
+    secret: "secret",
+    resave: false, // Evita que la session se vuelva a guardar si no hay datos
+    saveUninitialized: false, // Evita que la sesion se guarde si no esta inicializada
+}))
+
+connectDB()
+
+app.use("/product", productRouter)
+app.use("/category", categoryRouter)
+app.use("/user", userRouter)
+
+app.listen(PORT, () => {
+    console.log(`Server is running on port ${PORT}`)
+})
