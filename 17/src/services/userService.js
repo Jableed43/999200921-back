@@ -9,10 +9,23 @@ export const createUserService = async (userData) => {
     return savedUser
 }
 
+// export const getUserService = async () => {
+//    const users = await User.find().lean()
+//     return users
+// }
+
 export const getUserService = async () => {
-   const users = await User.find().lean()
-    return users
-}
+    // Traemos los usuarios reales de la base de datos
+    const users = await User.find().lean();
+
+    // Generamos el nuevo índice 'id' basado en la posición
+    for (let i = 0; i < users.length; i++) {
+        // Creamos la propiedad 'id' (sumamos 1 para que empiece en 1 y no en 0)
+        users[i].id = i + 1;
+    }
+
+    return users;
+};
 
 export const updateUserService = async (id, userData) => {
     await checkModelExist(User, {_id: id}, true, 404, `User not found`)
