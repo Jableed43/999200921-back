@@ -1,0 +1,29 @@
+<a href="/user/create">Crear usuario</a>
+{{#if users.length}}
+    <table>
+        <thead>
+            <tr>
+                <th>Nombre</th>
+                <th>Apellido</th>
+                <th>Email</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            {{#each users}}
+                <tr>
+                    <td>{{name}}</td>
+                    <td>{{lastName}}</td>
+                    <td>{{email}}</td>
+                    <td>
+                        <form action="/user/delete/{{_id}}?_method=delete" method="post" >
+                        <button type="submit" onclick="return confirm('¿Estas seguro que quieres eliminar el usuario?')" >Eliminar</button>
+                        </form>
+                    </td>
+                </tr>
+            {{/each}}
+        </tbody>
+    </table>
+{{else}}
+    <p>No hay usuarios registrados.</p>
+{{/if}}

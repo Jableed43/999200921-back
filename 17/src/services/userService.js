@@ -4,17 +4,13 @@ import bcrypt from 'bcrypt'
 import jwt from 'jsonwebtoken'
 
 export const createUserService = async (userData) => {
-    const {email} = userData
-    await checkModelExist(User, {email}, false, 400, `User with email ${email} already exists`)
-
     const newUser = new User(userData)
     const savedUser = await newUser.save()
-    // despues deberiamos quitar la password al retornar el usuario
     return savedUser
 }
 
 export const getUserService = async () => {
-   const users = await User.find()
+   const users = await User.find().lean()
     return users
 }
 
@@ -36,7 +32,9 @@ export const updateUserService = async (id, userData) => {
 }
 
 export const deleteUserService = async (id) => {
-   await User.deleteOne({_id: id})
+    console.log(id)
+   const response = await User.deleteOne({_id: id})
+   console.log(response)
    return { message: "User deleted" }
 }
 
