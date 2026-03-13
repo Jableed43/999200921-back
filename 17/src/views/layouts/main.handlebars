@@ -4,9 +4,26 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title> {{title}} - Utn Backend </title>
+    <link rel="stylesheet" href="/css/general.css">
 </head>
 <body>
     <h1>Bienvenidos</h1>
+    <nav>
+            <a href="/">Inicio</a> | 
+            <a href="/product/getAll">Productos</a> | 
+            {{#if user}}
+                <a href="/category/getAll">Categorías</a> |
+                <a href="/user/getAll">Usuarios</a> |
+
+                <span>Hola, {{user.email}} </span> | 
+                <form action="/user/logout" method="POST" style="display:inline">
+                    <button type="submit" class="btn">Salir</button>
+                </form>
+            {{else}}
+                <a href="/user/login">Login</a> |
+                <a href="/user/create">Registro</a>
+            {{/if}}
+        </nav>
     <h3> {{title}} </h3>
     {{#if message}} <div> {{message}} </div>  {{/if}}
 

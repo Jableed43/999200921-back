@@ -1,0 +1,42 @@
+<a href="/product/create">Crear producto</a>
+{{#if products.length}}
+    <table>
+        <thead>
+            <tr>
+                <th>Nombre</th>
+                <th>Categoria</th>
+                <th>Descripcion</th>
+                <th>Precio</th>
+                <th>Rango de ganancia</th>
+                <th>Stock</th>
+                <th>Estado</th>
+                <th>Destacado</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            {{#each products}}
+                <tr>
+                    <td>{{name}}</td>
+                    <td>{{#if category}}{{category.name}}{{else}}Sin categoría{{/if}}</td>
+                    <td>{{description}}</td>
+                    <td>{{price}}</td>
+                    <td>{{profitRate}}</td>
+                    {{!-- quantity es stock --}}
+                    <td>{{quantity}}</td>
+                    <td>{{status}}</td>
+                    {{#if highlighted}}<span class="badge">Destacado</span>{{/if}}
+                    <td>
+                        <a href="/product/update/{{_id}}">Editar producto</a>
+                        <form action="/product/delete/{{_id}}?_method=delete" method="post" >
+                        <button type="submit" onclick="return confirm('¿Estas seguro que quieres eliminar el producto?')" >Eliminar</button>
+                        </form>
+                    </td>
+                </tr>
+            {{/each}}
+        </tbody>
+    </table>
+{{else}}
+        {{!-- Empty state --}}
+    <p>No hay productos.</p>
+{{/if}}

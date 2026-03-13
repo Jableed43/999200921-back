@@ -3,19 +3,25 @@ import Product from "../models/productModel.js"
 
 export const createProductService = async (productData) => {
     const {name} = productData
-    await checkModelExist(Product, {name}, false, 400, `Product ${name} already exists`)
+    const exist = await checkModelExist(Product, {name}, false, null, `Product ${name} already exists`)
+    console.log({exist})
+    if(exist){
+        throw {message: "El producto ya existe", statusCode: 400}
+    }
 
     // creo instancia del producto
     const newProduct = new Product(productData)
+    console.log({newProduct})
     // guardo el producto
     const savedProduct = await newProduct.save()
-
+    console.log({savedProduct})
     return savedProduct
 }
 
 export const getAllProductService = async () => {
     //populate("category") hace un llamado a la categoria por el id de cada producto
-    const products = await Product.find().populate({ path: "category", select: "name" })
+    const products = await Product.find().populate({ path: "category", select: "name" })     
+    console.log({products})
     return products
 }
 

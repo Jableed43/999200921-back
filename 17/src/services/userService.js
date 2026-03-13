@@ -1,3 +1,4 @@
+import { SECRET } from "../config/config.js"
 import { checkModelExist } from "../helpers/checkExist.js"
 import User from '../models/userModel.js'
 import bcrypt from 'bcrypt'
@@ -28,20 +29,14 @@ export const getUserService = async () => {
 };
 
 export const updateUserService = async (id, userData) => {
-    await checkModelExist(User, {_id: id}, true, 404, `User not found`)
-
-    // Hashea la password al editarla
-    if(userData.password){
-        userData.password = bcrypt.hashSync(userData.password, 10)
+    const user = await User.findById(id)
+    if(!user){
+        throw { message: "Usuario no encontrado", statuscode: 404 }
     }
+    //Actualiza los campos
+    Object.assign(user, userData)
 
-    const updatedUser = await User.findByIdAndUpdate(
-        {_id: id},
-        userData,
-        { returnDocument: "after" }
-    )
-
-    return updatedUser
+    return await user.save()
 }
 
 export const deleteUserService = async (id) => {
@@ -52,7 +47,7 @@ export const deleteUserService = async (id) => {
 }
 
 export const getUserByIdService = async (id) => {
-   const user = await User.findById(id)
+   const user = await User.findById(id).lean()
     return user
 }
 
@@ -60,15 +55,13 @@ export const validateUserService = async (userData) => {
     const {password, email} = userData
 
     if(!(password && email)){
-        const error = new Error("There's a missing field")
-        error.statusCode = 400
-        throw error
+        throw new Error("Email y contraseña son requeridos")
     }
 
-    const userFound = await checkModelExist(User, {email}, true, 404, `User or password are incorrect`)
+    const userFound = await checkModelExist(User, {email}, true, null, `Usuario no encontrado`)
 
-     if(!bcrypt.compareSync(password, userFound.password)){
-        const error = new Error("User or password are incorrect")
+     if(!userFound || !bcrypt.compareSync(password, userFound.password)){
+        const error = new Error("Credenciales invalidas")
         error.statusCode = 400
         throw error
      }
@@ -82,8 +75,8 @@ export const validateUserService = async (userData) => {
 
      // Firmar el token
     // La firma previene intentos de utilizar tokens falsos o duplicados
-    const token = jwt.sign(payload, "secret", {expiresIn: "1h"})
+    const token = jwt.sign(payload, SECRET, {expiresIn: "1h"})
 
-     return {message: "Logged in", token}
+     return {token, userId: userFound._id, userEmail: userFound.email }
 }
 

@@ -18,6 +18,7 @@
                     <td>{{lastName}}</td>
                     <td>{{email}}</td>
                     <td>
+                        <a href="/user/update/{{_id}}">Editar usuario</a>
                         <form action="/user/delete/{{_id}}?_method=delete" method="post" >
                         <button type="submit" onclick="return confirm('¿Estas seguro que quieres eliminar el usuario?')" >Eliminar</button>
                         </form>

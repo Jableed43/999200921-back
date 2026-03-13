@@ -4,21 +4,21 @@
 // Al usarlo el shouldExist debe ser true si buscas que exista, y 
 // debe ser false si buscas que no exista
 
-export const checkModelExist = async (Model, query, shouldExist, statusCode, errorMessage) => {
+export const checkModelExist = async (Model, query, shouldExist, statusCode = null, errorMessage) => {
     // Buscamos el documento o registro a ver si existe
      const document = await Model.findOne(query)
 
         // Si deberia existir y no existe
         if(shouldExist && !document){
             const error = new Error(errorMessage)
-            error.statusCode = statusCode
+            statusCode && (error.statusCode = statusCode)
             throw error
         }
 
        // No deberia existir y existe
             if(!shouldExist && document){
                 const error = new Error(errorMessage)
-                error.statusCode = statusCode
+                statusCode && (error.statusCode = statusCode)
                 throw error
             }
 

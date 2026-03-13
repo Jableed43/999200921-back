@@ -10,11 +10,34 @@ export const createUserView = async (req, res) => {
 }
 
 export const getAllUserView = async (req, res) => {
-   const users = await getUserService()
-   console.log(users)
+   try {
+    const users = await getUserService()
    res.render("user/getAllUser", {title: "Lista de usuarios", users})
+   } catch (error) {
+    req.session.message = error.message || "Error al cargar los usuarios"
+        res.redirect("/")
+   }
 }
 
+export const updateUserView = async (req, res) => {
+    try {
+        const {id} = req.params
+        const user = await getUserByIdService(id)
+        console.log({user})
+        res.render("user/updateUser", {
+            title: "Editar usuario", user
+        })
+    } catch (error) {
+        req.session.message = error.message || "Usuario no encontrado"
+        res.redirect("/")
+    }
+}
+
+export const validateUserView = (req, res) => {
+    res.render("user/loginUser", {
+        title: "Iniciar sesion"
+    })
+}
 
 // Acciones
 export const createUser2 = async (req, res) => {
@@ -52,10 +75,14 @@ export const updateUser = async (req, res) => {
     try {
         const {id} = req.params
         const userData = req.body
-        const updatedUser = await updateUserService(id, userData)
-        res.status(201).json(updatedUser)
+        await updateUserService(id, userData)
+        req.session.message = "Usuario actualizado correctamente"
+        req.session.success = true
+        res.redirect("/")
     } catch (error) {
-        handleError(error, res)
+        
+        req.session.message = error.message || "Error al actualizar usuario"
+        res.redirect("/")
     }
 }
 
@@ -90,24 +117,29 @@ export const validateUser = async (req, res) => {
     try {
         const userData = req.body
        const result = await validateUserService(userData)
-       res.status(200).json(result)
+       
+        req.session.token = result.token
+        req.session.userId = result.userId
+        req.session.userEmail = result.userEmail
+        req.session.message = `¡Bienvenido/a ${userData.name} ${userData.lastName}`
+
+        req.session.success = true
+        res.redirect("/")
+
     } catch (error) {
-        handleError(error, res)
+        req.session.message = error.message || "Error al iniciar sesion"
+        res.redirect("/")
     }
 }
 
 export const logout = async (req, res) => {
-    try {
-        if(req.session){
-            console.log(req.session)
-            req.session.destroy()
-            res.clearCookie("connect.sid")
+        if(!req.session){
+            return res.redirect("/user/login")
         }
 
-        return res.status(200).json({
-            message: "Logged out successfully"
-        })
-    } catch (error) {
-        handleError(error, res)
-    }
+            req.session.destroy((err) => {
+                if(err) console.error("Error al cerrar sesion: ", err)
+                res.clearCookie("connect.sid")
+                res.redirect("/")
+            })
 }
