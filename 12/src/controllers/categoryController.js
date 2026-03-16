@@ -1,33 +1,48 @@
-import { createCategoryService, deleteCategoryService, getAllCategoryService } from "../services/categoryService.js"
+import { createCategoryService, deleteCategoryService, getAllCategoryService, updateCategoryService } from "../services/categoryService.js"
 import { handleError } from "../utils/errorHandler.js"
 
-export const getAllCategory = async (req,res) => {
-   try {
-    const categories = await getAllCategoryService()
-    res.status(200).json(categories)
-   } catch (error) {
+export const getAllCategories = async (req, res) => {
+    try {
+        const categories = await getAllCategoryService()
+        res.status(200).json(categories)
+    } catch (error) {
         handleError(error, res)
-   }
+    }
 }
 
 export const createCategory = async (req, res) => {
     try {
-        const categoryData = req.body
-
-       const newCategory = await createCategoryService(categoryData)
-
-        res.status(201).json(newCategory)
+        const { name } = req.body
+        const response = await createCategoryService(name)
+        res.status(201).json(response)
     } catch (error) {
-        handleError(error, res)
+         handleError(error, res)
+    }
+}
+
+export const updateCategory = async (req, res) => {
+    try {
+        const {id} = req.params
+        const data = req.body
+
+        const updatedCategory = await updateCategoryService(id, data)
+
+        res.status(201).json(updatedCategory)
+
+    } catch (error) {
+         handleError(error, res)
     }
 }
 
 export const deleteCategory = async (req, res) => {
     try {
         const {id} = req.params
-       const deleted = await deleteCategoryService(id)
-       res.status(201).json(deleted)
+
+        const deletedCategory = await deleteCategoryService(id)
+
+        res.status(201).json({ message: "Deleted Category", deletedCategory})
+
     } catch (error) {
-        handleError(error, res)
+         handleError(error, res)
     }
 }

@@ -1,8 +1,13 @@
-// Helpers -> Codigo generico, pero dependen de servicios especificos de tu sistema
-// Pueden hacer llamados a servicios 
+// Helper -> Es una funcion generica que se relaciona con llamados a servicios o con logica de nuestro sistema
+// Para componetizar el exist:
+// Modelo
+// Definir si existe o no
+// StatusCode
+// Mensaje del error
 
-// Al usarlo el shouldExist debe ser true si buscas que exista, y 
-// debe ser false si buscas que no exista
+// Pregunta clave, queres validar si existe o si no existe?
+// Si queres validar existencia siempre es true
+// Si queres validar no existencia siempre es false
 
 export const checkModelExist = async (Model, query, shouldExist, statusCode, errorMessage) => {
     // Buscamos el documento o registro a ver si existe

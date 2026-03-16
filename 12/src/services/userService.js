@@ -1,48 +1,47 @@
-import { checkModelExist } from "../helpers/checkExist.js"
+import { SECRET } from '../config/config.js'
+import { checkModelExist } from '../helpers/checkExist.js'
 import User from '../models/userModel.js'
 import bcrypt from 'bcrypt'
 import jwt from 'jsonwebtoken'
 
 export const createUserService = async (userData) => {
     const {email} = userData
-    await checkModelExist(User, {email}, false, 400, `User with email ${email} already exists`)
+    await checkModelExist(User, {email}, false, 400, `User with email ${email} already exist`)
 
     const newUser = new User(userData)
     const savedUser = await newUser.save()
-    // despues deberiamos quitar la password al retornar el usuario
     return savedUser
+    // luego quitar contraseña
 }
 
 export const getUserService = async () => {
-   const users = await User.find()
+    const users = await User.find()
     return users
 }
 
 export const updateUserService = async (id, userData) => {
-    await checkModelExist(User, {_id: id}, true, 404, `User not found`)
+    await checkModelExist(User, {_id: id}, true, 400, `User not found`)
 
-    // Hashea la password al editarla
+    // En la edicion del usuario si modifican la password deberiamos encriptarla
     if(userData.password){
         userData.password = bcrypt.hashSync(userData.password, 10)
     }
 
-    const updatedUser = await User.findByIdAndUpdate(
-        {_id: id},
+    const updatedUser = await User.findOneAndUpdate(
+        { _id: id },
         userData,
-        { returnDocument: "after" }
+        { returnDocument: 'after' }
     )
 
     return updatedUser
 }
 
 export const deleteUserService = async (id) => {
-   await User.deleteOne({_id: id})
-   return { message: "User deleted" }
-}
+    await checkModelExist(User, {_id: id}, true, 400, `User not found`)
 
-export const getUserByIdService = async (id) => {
-   const user = await User.findById(id)
-    return user
+    const deletedUser = await User.findByIdAndDelete(id)
+
+    return { message: "User deleted successfully", data: deletedUser }
 }
 
 export const validateUserService = async (userData) => {
@@ -54,25 +53,32 @@ export const validateUserService = async (userData) => {
         throw error
     }
 
-    const userFound = await checkModelExist(User, {email}, true, 404, `User or password are incorrect`)
+    const userFound = await checkModelExist(User, {email}, true, 400, `User or password is incorrect`)
 
-     if(!bcrypt.compareSync(password, userFound.password)){
-        const error = new Error("User or password are incorrect")
+    //comparamos la password que nos manda el cliente y la que tenemos almacenada en la base de datos
+    if(!bcrypt.compareSync(password, userFound.password)){
+        const error = new Error("User or password is incorrect")
         error.statusCode = 400
-        throw error
-     }
+        throw error  
+    }
 
-     // JWT
-     // Armamos el token con informacion del usuario
-     const payload = {
+    //JWT
+
+    // Primero armamos el token
+    // debe tener informacion del usuario
+    // tanto _id como email son datos unicos
+    const payload = {
         userId: userFound._id,
         userEmail: userFound.email
-     }
+    }
 
-     // Firmar el token
-    // La firma previene intentos de utilizar tokens falsos o duplicados
-    const token = jwt.sign(payload, "secret", {expiresIn: "1h"})
+    // Despues firmamos el token
+    // la firma del token previene intentos de hackeo o replicar tokens
+    // sign necesita: 1. payload, 2. "secret", 3. duración
+    const token = jwt.sign(payload, SECRET, {expiresIn: "1h"})
 
-     return {message: "Logged in", token}
+    // Despues mandamos el token
+
+    return {message: "Logged In", token}
+    
 }
-

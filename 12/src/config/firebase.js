@@ -15,7 +15,6 @@ const firebaseConfig = {
   appId: APP_ID
 };
 
-
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
 

@@ -1,12 +1,10 @@
-// Los utils -> Codigo generico, que no dependen de ningun servicio del sistema
-// Se podrian utilizar en diferentes lugares
-// Es comun que en utils tengas, calculadoras, etc.
+// Util -> Es una herramienta generica que no depende de ningun servicio especifico, se puede usar casi en cualquier lugar
 
 export const handleError = (error, res) => {
-     const statusCode = error.statusCode || 500
-     const message = error.message || "Internal server error"
+    const statusCode = error.statusCode || 500
+    const message = error.message || "Internal server error"
 
         res.status(statusCode).json({
-        message: message,
+            message: message
         })
 }

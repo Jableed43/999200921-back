@@ -1,36 +1,40 @@
-import express from 'express'
-import { PORT } from './src/config/config.js'
-import { connectDB } from './src/config/db.js'
-import productRouter from "./src/routes/productRoutes.js"
-import categoryRouter from './src/routes/categoryRoutes.js'
-import userRouter from './src/routes/userRoutes.js'
-import cors from 'cors'
-import session from 'express-session'
-import purchaseRouter from './src/routes/purchaseRoutes.js'
+import express from "express"
+import cors from "cors"
+import { PORT, SECRET } from "./src/config/config.js"
+import { connectDB } from "./src/config/db.js"
+import productRoute from "./src/routes/productRoute.js"
+import categoryRoute from "./src/routes/categoryRoute.js"
+import userRoute from "./src/routes/userRoute.js"
+import session from "express-session"
+import purchaseRoute from "./src/routes/purchaseRoute.js"
 
 const app = express()
 
+// Habilitar CORS para permitir peticiones desde el frontend (Vite) de forma segura
 app.use(cors({
-    origin: "*",
-    methods: ["GET", "POST", "PUT", "DELETE", "PATCH"]
+    origin: '*', // Puerto en el que corre React
+    credentials: true // Permite envío de cookies/headers de sesión autorizada
 }))
 
 app.use(express.json())
-app.use(express.urlencoded({extended: true}))
 
+app.use(express.urlencoded({extended: true}))
+// Paso 1 para habilitar sesion:
 app.use(session({
-    secret: "secret",
-    resave: false, // Evita que la session se vuelva a guardar si no hay datos
+    secret: SECRET,
+    resave: false, // Evita que la sesion se vuelva a guardar si no hay datos
     saveUninitialized: false, // Evita que la sesion se guarde si no esta inicializada
 }))
 
 connectDB()
 
-app.use("/api/product", productRouter)
-app.use("/api/category", categoryRouter)
-app.use("/api/user", userRouter)
-app.use("/api/purchase", purchaseRouter)
+// Rutas
+// Agrupador de rutas de productos
+app.use("/api/product", productRoute)
+app.use("/api/category", categoryRoute)
+app.use("/api/user", userRoute)
+app.use("/api/purchase", purchaseRoute)
 
 app.listen(PORT, () => {
-    console.log(`Server is running on port ${PORT}`)
+    console.log(`Servidor corriendo en el puerto ${PORT}`)
 })
