@@ -54,7 +54,7 @@ Existen acciones que **nunca** deben delegarse al Frontend por motivos de seguri
 | **Cálculo de Precios** | Enviar el total de la compra (`totalAmount: 5000`) desde React. | React envía solo qué IDs y qué cantidades se quieren. El Backend busca sus precios reales en BD y calcula el total. |
 | **Control de Stock** | Confiar en que si el Frontend no deja sumar artículos es porque hay stock garantizado. | El Backend verifica el stock en tiempo real contra la BD justo antes de cobrar y descuenta (`$inc`). |
 | **Búsqueda y Filtros** | Pedir todos los productos (MBs de datos) y filtrarlos con `array.filter()` en React. | React envía query params (`?search=teclado`). El Backend hace la búsqueda en BD y pagina la respuesta. |
-| **Persistencia del Carrito** | Guardarlo solo en `localStorage` (se pierde entre dispositivos de un mismo usuario). | *Ideal:* Sincronizar el modelo `Cart` en BD cuando el usuario inicia sesión. |
+| **Persistencia del Carrito** | Guardarlo solo en `sessionStorage` (se pierde entre dispositivos de un mismo usuario). | *Ideal:* Sincronizar el modelo `Cart` en BD cuando el usuario inicia sesión. |
 
 ---
 
@@ -70,7 +70,7 @@ Un enfoque paso a paso para construir la aplicación en React:
 ### Fase 2: El Cerebro del Carrito (Estado Global)
 *   Implementación de `CartContext.jsx` para guardar `cartItems`.
 *   Funciones: `addToCart`, `removeFromCart`, `updateQuantity`, `clearCart`.
-*   Efecto de persistencia guardando la información en `localStorage`.
+*   Efecto de persistencia guardando la información en `sessionStorage`.
 
 ### Fase 3: Conexión mediante Custom Hooks
 *   Configuración de URL base interactuando con `services/api.js`.

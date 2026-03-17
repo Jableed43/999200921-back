@@ -6,6 +6,7 @@ import { useAuth } from '../context/AuthContext';
 export const Home = () => {
   // Solo pedimos los productos destacados (highlighted: true)
   const { products, loading, error } = useGetProducts({ highlighted: true });
+  // Trae el dato del usuario y una condicion si esta autenticado
   const { user, isAuthenticated } = useAuth()
 console.log(user, isAuthenticated)
   return (
@@ -27,9 +28,10 @@ console.log(user, isAuthenticated)
         )}
 
         <div className="products-grid">
-          {products.map(product => (
-            <ProductCard key={product._id} product={product} />
-          ))}
+          { 
+          (products.map(product => (
+            product.quantity > 0 ? <ProductCard key={product._id} product={product} /> : null
+          )))}
         </div>
       </section>
     </div>

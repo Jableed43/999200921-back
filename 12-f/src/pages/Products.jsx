@@ -28,6 +28,7 @@ export const Products = () => {
     if (selectedCategory) params.category = selectedCategory;
     refetch(params);
     // eslint-disable-next-line
+    console.log({products})
   }, [selectedCategory]);
 
   return (
@@ -71,8 +72,9 @@ export const Products = () => {
         )}
 
         <div className="products-grid">
+          
           {products.map(product => (
-            <ProductCard key={product._id} product={product} />
+            product.quantity > 0 && <ProductCard key={product._id} product={product} />
           ))}
         </div>
       </div>

@@ -12,7 +12,7 @@ export const useAuth = () => {
 };
 
 export const AuthProvider = ({ children }) => {
-  const ObjectToken = window.localStorage.getItem('ecommerce_token');
+  const ObjectToken = window.sessionStorage.getItem('ecommerce_token');
   const [token, setToken] = useState(() => ObjectToken);
   const [user, setUser] = useState(() => {
     if (ObjectToken) {
@@ -21,9 +21,9 @@ export const AuthProvider = ({ children }) => {
     return null;
   });
 
-  // Sincroniza el contexto si el localStorage cambia
+  // Sincroniza el contexto si el sessionStorage cambia
   useEffect(() => {
-    const storedToken = window.localStorage.getItem('ecommerce_token');
+    const storedToken = window.sessionStorage.getItem('ecommerce_token');
     setToken(storedToken);
     if(storedToken) {
          try {
@@ -37,17 +37,20 @@ export const AuthProvider = ({ children }) => {
   }, []);
 
   const login = (newToken) => {
-    window.localStorage.setItem('ecommerce_token', newToken);
+    console.log({newToken})
+    window.sessionStorage.setItem('ecommerce_token', newToken);
     setToken(newToken);
     try {
         setUser(jwtDecode(newToken));
+        console.log(user)
     } catch (error) {
         setUser(null);
+        console.error(error.message)
     }
   };
 
   const logout = () => {
-    window.localStorage.removeItem('ecommerce_token');
+    window.sessionStorage.removeItem('ecommerce_token');
     setToken(null);
     setUser(null);
   };
