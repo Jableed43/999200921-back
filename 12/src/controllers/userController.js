@@ -1,7 +1,22 @@
+import { roleEnum } from "../models/userModel.js"
 import { createUserService, deleteUserService, getUserService, updateUserService, validateUserService } from "../services/userService.js"
 import { handleError } from "../utils/errorHandler.js"
 
 export const createUser = async (req, res) => {
+    try {
+        const userData = {
+            ...req.body,
+            role: roleEnum[2]
+        }
+        const result = await createUserService(userData)
+        res.status(201).json(result)
+
+    } catch (error) {
+        handleError(error, res)
+    }
+}
+
+export const createUserAdmin = async (req, res) => {
     try {
         const userData = req.body
         const result = await createUserService(userData)
@@ -32,10 +47,15 @@ export const updateUser = async (req, res) => {
         handleError(error, res)
     }
 }
-
+// Solo potestad del admin
 export const deleteUser = async (req, res) => {
     try {
         const {id} = req.params
+        // Si quien intenta borrar la cuenta no es el dueño de la cuenta
+        // o este no es administrador
+        if(req.user.userId !== id && req.user.role !== roleEnum[0]){
+            return res.status(403).json({message: "No autorizado"})
+        }
         const deletedUser = await deleteUserService(id)
         res.status(201).json(deletedUser)
     } catch (error) {

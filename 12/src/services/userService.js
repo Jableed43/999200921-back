@@ -6,8 +6,9 @@ import jwt from 'jsonwebtoken'
 
 export const createUserService = async (userData) => {
     const {email} = userData
-    await checkModelExist(User, {email}, false, 400, `User with email ${email} already exist`)
-
+    console.log({userData})
+    const response = await checkModelExist(User, {email}, false, 400, `User with email ${email} already exist`)
+    console.log({response})
     const newUser = new User(userData)
     const savedUser = await newUser.save()
     return savedUser
@@ -15,7 +16,8 @@ export const createUserService = async (userData) => {
 }
 
 export const getUserService = async () => {
-    const users = await User.find()
+    // .select("-password") no muestra el campo password en la respuesta
+    const users = await User.find().select("-password")
     return users
 }
 
@@ -69,7 +71,8 @@ export const validateUserService = async (userData) => {
     // tanto _id como email son datos unicos
     const payload = {
         userId: userFound._id,
-        userEmail: userFound.email
+        userEmail: userFound.email,
+        role: userFound.role
     }
 
     // Despues firmamos el token

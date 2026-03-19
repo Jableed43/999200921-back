@@ -5,7 +5,7 @@ import { useAuth } from '../context/AuthContext.jsx'
 
 export const Navbar = () => {
   const { getCartCount } = useCart()
-  const { isAuthenticated, logout } = useAuth()
+  const { isAuthenticated, logout, isAdmin, user } = useAuth()
   const navigate = useNavigate()
 
   const handleLogout = () => {
@@ -24,13 +24,17 @@ export const Navbar = () => {
       <ul className="nav-links">
         <li><Link to="/">Inicio</Link></li>
         <li><Link to="/productos">Catálogo</Link></li>
+        { isAdmin && <li> <Link to="/admin/usuarios" className='admin-link'>Gestion</Link> </li>}
       </ul>
 
       <div className="nav-actions">
-        {isAuthenticated ? (
-          <button onClick={handleLogout} className="action-icon logout-btn" title="Cerrar Sesión">
-            <LogOut size={24} />
-          </button>
+       {isAuthenticated ? (
+          <div className="user-nav-info">
+            <span className="user-email-nav">{user?.email}</span>
+            <button onClick={handleLogout} className="action-icon logout-btn" title="Cerrar Sesión">
+              <LogOut size={24} />
+            </button>
+          </div>
         ) : (
           <Link to="/login" className="action-icon" title="Iniciar Sesión">
             <LogIn size={24} />

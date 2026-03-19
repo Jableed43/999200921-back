@@ -10,7 +10,7 @@ export const useRegister = () => {
     try {
       setLoading(true)
       setError(null)
-     const data = await fetchApi("/user", {
+     const data = await fetchApi("/user/register", {
         method: "POST",
         body: JSON.stringify(userData)
       })
