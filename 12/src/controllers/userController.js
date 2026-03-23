@@ -40,6 +40,11 @@ export const updateUser = async (req, res) => {
     try {
         const {id} = req.params
         const userData = req.body
+        // El usuario que solicita la modificacion del user y el user a actualizar
+        // deben coincidir en id
+        if(req.user.userId !== id){
+            return res.status(403).json({message: "No autorizado: Los usuarios solo pueden editarse a si mismo"})
+        }
         const updatedUser = await updateUserService(id, userData)
         res.status(201).json(updatedUser)
 

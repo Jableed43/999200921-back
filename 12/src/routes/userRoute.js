@@ -10,7 +10,7 @@ userRoute.post("/register", createUser)
 userRoute.post("/", verifyTokenMiddleware, verifyRoleMiddleware([roleEnum[0]]), createUserAdmin)
 userRoute.get("/", verifyTokenMiddleware, verifyRoleMiddleware([roleEnum[0]]), getUser)
 userRoute.patch("/:id", verifyTokenMiddleware, updateUser)
-userRoute.delete("/:id", verifyTokenMiddleware, deleteUser)
+userRoute.delete("/:id", verifyTokenMiddleware, verifyRoleMiddleware([roleEnum[0], roleEnum[1]]), deleteUser)
 userRoute.post("/login", validateUser)
 
 export default userRoute

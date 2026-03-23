@@ -1,10 +1,11 @@
 import { useState } from 'react';
 import { fetchApi } from '../services/api';
+import { useAuth } from '../context/AuthContext';
 
 export const useCreatePurchase = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-
+   const { user } = useAuth()
   const checkout = async (cartItems) => {
     try {
       setLoading(true);
@@ -16,7 +17,8 @@ export const useCreatePurchase = () => {
         items: cartItems.map(item => ({
           productId: item.product._id || item.product.id,
           quantity: item.quantity
-        }))
+        })),
+        userId: user.id
       };
 
       // Si Express responde 200/201, no lanza errors
