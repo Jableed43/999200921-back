@@ -1,7 +1,8 @@
 // Va a verificar si el token recibido es valido
 
 import { verifyToken } from "../utils/verifyToken.js"
-
+// Estaria bueno que al vencerse el token, te de un alert de vencimiento de sesion
+// te redirija ademas al login
 export const verifyTokenMiddleware = (req, res, next) => {
     try {
         // Primero del cliente obtenemos el token (que nosotros le brindamos anteriormente)

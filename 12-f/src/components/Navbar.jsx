@@ -5,7 +5,7 @@ import { useAuth } from '../context/AuthContext.jsx'
 
 export const Navbar = () => {
   const { getCartCount } = useCart()
-  const { isAuthenticated, logout, isAdmin, user } = useAuth()
+  const { isAuthenticated, logout, isAdmin, user, isSeller } = useAuth()
   const navigate = useNavigate()
 
   const handleLogout = () => {
@@ -24,7 +24,10 @@ export const Navbar = () => {
       <ul className="nav-links">
         <li><Link to="/">Inicio</Link></li>
         <li><Link to="/productos">Catálogo</Link></li>
-        { isAdmin && <li> <Link to="/admin/usuarios" className='admin-link'>Gestion</Link> </li>}
+        { (isAdmin || isSeller ) && <li> <Link to="/admin/productos" className='admin-link'>Productos</Link> </li>}
+        { (isAdmin || isSeller ) && <li> <Link to="/admin/categorias" className='admin-link'>Categorias</Link> </li>}
+        { (isAdmin || isSeller ) && <li> <Link to="/admin/ventas" className='admin-link'>Ventas</Link> </li>}
+        { isAdmin && <li> <Link to="/admin/usuarios" className='admin-link'>Usuarios</Link> </li>}
       </ul>
 
       <div className="nav-actions">
