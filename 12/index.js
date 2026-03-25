@@ -26,7 +26,13 @@ app.use(session({
     saveUninitialized: false, // Evita que la sesion se guarde si no esta inicializada
 }))
 
-connectDB()
+// Solo conectamos a la BD y levantamos el server si NO estamos en entorno de test
+if (process.env.NODE_ENV !== 'test') {
+    connectDB()
+    app.listen(PORT, () => {
+        console.log(`Servidor corriendo en el puerto ${PORT}`)
+    })
+}
 
 // Rutas
 // Agrupador de rutas de productos
@@ -35,6 +41,4 @@ app.use("/api/category", categoryRoute)
 app.use("/api/user", userRoute)
 app.use("/api/purchase", purchaseRoute)
 
-app.listen(PORT, () => {
-    console.log(`Servidor corriendo en el puerto ${PORT}`)
-})
+export default app
