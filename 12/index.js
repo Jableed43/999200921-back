@@ -5,7 +5,6 @@ import { connectDB } from "./src/config/db.js"
 import productRoute from "./src/routes/productRoute.js"
 import categoryRoute from "./src/routes/categoryRoute.js"
 import userRoute from "./src/routes/userRoute.js"
-import session from "express-session"
 import purchaseRoute from "./src/routes/purchaseRoute.js"
 
 const app = express()
@@ -19,12 +18,6 @@ app.use(cors({
 app.use(express.json())
 
 app.use(express.urlencoded({extended: true}))
-// Paso 1 para habilitar sesion:
-app.use(session({
-    secret: SECRET,
-    resave: false, // Evita que la sesion se vuelva a guardar si no hay datos
-    saveUninitialized: false, // Evita que la sesion se guarde si no esta inicializada
-}))
 
 // Solo conectamos a la BD y levantamos el server si NO estamos en entorno de test
 if (process.env.NODE_ENV !== 'test') {

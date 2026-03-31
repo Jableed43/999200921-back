@@ -1,5 +1,5 @@
 // Centralización de las llamadas al servidor (Fetch wrapper)
-const BASE_URL = 'http://localhost:3000/api';
+const BASE_URL = 'https://despliegue-921.vercel.app/api';
 
 /**
  * Función genérica para hacer peticiones HTTP
