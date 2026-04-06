@@ -1,5 +1,6 @@
 // Centralización de las llamadas al servidor (Fetch wrapper)
-const BASE_URL = 'https://despliegue-921.vercel.app/api';
+const BASE_URL2 = 'https://despliegue-921.vercel.app/api';
+const BASE_URL = 'http://localhost:3000/api';
 
 /**
  * Función genérica para hacer peticiones HTTP
@@ -12,13 +13,18 @@ export const fetchApi = async (endpoint, options = {}) => {
   // Extraemos el token del sessionStorage por si existe
   const token = window.sessionStorage.getItem('ecommerce_token');
 
-  const defaultHeaders = {
+  // Si el cuerpo es FormData (para subir archivos), 
+  // el navegador debe generar el boundary automáticamente, 
+  // por lo que NO debemos setear el Content-Type manualmente.
+  const isFormData = options.body instanceof FormData;
+
+  const defaultHeaders = isFormData ? {} : {
     'Content-Type': 'application/json',
   };
 
   // Si tenemos token guardado, lo inyectamos siempre como Bearer
   if (token) {
-    defaultHeaders['Authorization'] = `Bearer ${token}`;
+    defaultHeaders['Authorization'] = `Bearer ${token}`
   }
 
   const config = {

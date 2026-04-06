@@ -33,7 +33,10 @@ export const Navbar = () => {
       <div className="nav-actions">
        {isAuthenticated ? (
           <div className="user-nav-info">
-            <span className="user-email-nav">{user?.email}</span>
+            <Link to="/perfil" className="profile-link-nav">
+              {user?.avatar && <img src={user.avatar} alt="Avatar" className="avatar-nav" />}
+              <span className="user-email-nav">{user?.email || user?.userEmail}</span>
+            </Link>
             <button onClick={handleLogout} className="action-icon logout-btn" title="Cerrar Sesión">
               <LogOut size={24} />
             </button>

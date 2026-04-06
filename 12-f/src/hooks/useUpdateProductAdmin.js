@@ -10,9 +10,11 @@ export const useUpdateProductAdmin = () => {
     setError(null);
 
     try {
+      const body = productData instanceof FormData ? productData : JSON.stringify(productData);
+
       const data = await fetchApi(`/product/${id}`, {
         method: "PATCH",
-        body: JSON.stringify(productData),
+        body: body,
       });
         return { success: true, data };
     } catch (error) {

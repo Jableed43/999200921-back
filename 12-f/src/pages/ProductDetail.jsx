@@ -31,9 +31,11 @@ export const ProductDetail = () => {
       </Link>
 
       <div className="detail-card">
-        <div className="detail-image">
-          <span>{product.name.charAt(0).toUpperCase()}</span>
-        </div>
+        {product.image && (
+          <div className="detail-image-container">
+            <img src={product.image} alt={product.name} className="detail-img-main" />
+          </div>
+        )}
         
         <div className="detail-info">
           <h2>{product.name}</h2>

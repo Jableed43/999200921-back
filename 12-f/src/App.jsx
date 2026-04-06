@@ -13,6 +13,7 @@ import { AuthProvider } from './context/AuthProvider.jsx'
 import AdminCategories from './pages/AdminCategories.jsx'
 import AdminPurchases from './pages/AdminPurchases.jsx'
 import { AdminProducts } from './pages/AdminProducts.jsx'
+import { UserProfile } from './pages/UserProfile'
 
 function App() {
   return (
@@ -28,10 +29,15 @@ function App() {
           {/* Rutas Dinámicas */}
           <Route path="producto/:id" element={<ProductDetail />} />
           
-          {/* Checkout / Auth */}
+          {/* Checkout / Auth / Profile */}
           <Route path="carrito" element={<Cart />} />
             <Route path="login" element={<Login />} />
             <Route path="registro" element={<Register />} />
+            <Route path="perfil" element={
+              <ProtectedRoute>
+                <UserProfile />
+              </ProtectedRoute>
+            } />
 
             {/* Añadir rutas de administrador - Usuarios */}
             <Route path='admin/usuarios' element={

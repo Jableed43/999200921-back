@@ -11,10 +11,11 @@ export const ProductCard = ({ product }) => {
   return (
     <div className="product-card">
       <Link to={`/producto/${product._id}`} className="product-link">
-        <div className="product-image-placeholder">
-          {/* Si tu backend tuviera imagenes, iria img tag aqui */}
-          <span>{product.name.charAt(0).toUpperCase()}</span>
-        </div>
+        {product.image && (
+          <div className="product-image-container">
+            <img src={product.image} alt={product.name} className="product-img" />
+          </div>
+        )}
         <div className="product-info">
           <h3>{product.name}</h3>
           <p className="product-category">

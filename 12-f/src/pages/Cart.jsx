@@ -73,9 +73,11 @@ export const Cart = () => {
             
             return (
               <div key={product._id} className="cart-item">
-                <div className="cart-item-image">
-                  <span>{product.name.charAt(0)}</span>
-                </div>
+                {product.image && (
+                  <div className="cart-item-image">
+                    <img src={product.image} alt={product.name} />
+                  </div>
+                )}
                 
                 <div className="cart-item-details">
                   <h3>{product.name}</h3>
