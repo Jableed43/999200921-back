@@ -47,6 +47,7 @@ export const deleteUserService = async (id) => {
 }
 
 export const validateUserService = async (userData) => {
+    console.log({userData})
     const {password, email} = userData
 
     if(!(password && email)){
@@ -72,7 +73,8 @@ export const validateUserService = async (userData) => {
     const payload = {
         userId: userFound._id,
         userEmail: userFound.email,
-        role: userFound.role
+        role: userFound.role,
+        avatar: userFound.avatar
     }
 
     // Despues firmamos el token

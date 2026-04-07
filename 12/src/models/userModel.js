@@ -54,6 +54,10 @@ const userSchema = new mongoose.Schema({
             message: props => `${props.value} nos es un rol valido`
         },
         default: roleEnum[2]
+    },
+    avatar: {
+        type: String,
+        default: "https://cdn-icons-png.freepik.com/512/11820/11820201.png"
     }
 }, { timestamps: true })
 

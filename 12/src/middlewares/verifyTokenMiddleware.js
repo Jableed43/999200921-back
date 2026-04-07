@@ -1,6 +1,8 @@
 // Va a verificar si el token recibido es valido
 
+import { SECRET } from "../config/config.js"
 import { verifyToken } from "../utils/verifyToken.js"
+import jwt from 'jsonwebtoken'
 // Estaria bueno que al vencerse el token, te de un alert de vencimiento de sesion
 // te redirija ademas al login
 export const verifyTokenMiddleware = (req, res, next) => {
@@ -29,3 +31,7 @@ export const verifyTokenMiddleware = (req, res, next) => {
         return res.status(400).json({message: "Invalid access token", error})
     }
 }
+
+export function generateToken(payload) {
+    return jwt.sign(payload, SECRET, {expiresIn: "1h"})
+} 

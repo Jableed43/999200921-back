@@ -1,10 +1,25 @@
 import { createProductService, deleteProductService, getAllProductService, updateProductService, getProductByIdService } from "../services/productService.js"
 import { handleError } from "../utils/errorHandler.js"
+import {uploadImageToSupabase} from "../utils/supabaseStorage.js"
 
 export const createProduct = async (req, res) => {
     try {
         // recibimos del cliente la informacion
-        const productData = req.body
+        // los campos de texto del formulario llegan en re.body gracias a multer
+        // usamos un fallback explicito para evitar que productData sea undefined
+        const productData = req.body ? {...req.body} : {}
+
+        // Si tenemos la imagen la subimos
+        if(req.file){
+           const imageUrl = await uploadImageToSupabase(req.file, "imagenes")
+           productData.image = imageUrl
+        }
+
+        //validacion extra antes de llamar al servicio
+        if(!productData || Object.keys(productData).length === 0){
+            return res.status(400).json({message: "No se recibió informacion del producto"})
+        }
+
         // manejamos la creacion del producto
         const savedProduct = await createProductService(productData)
         // respondemos al cliente con el producto creado
@@ -41,7 +56,13 @@ export const updateProduct = async (req, res) => {
         // req.params -> Parametro de ruta, es informacion que se envia desde en endpoint para filtrar
         // o identificar algo unico
         const { id } = req.params
-        const productData = req.body
+        const productData = { ...req.body }
+
+        // Si tenemos la imagen la subimos
+        if(req.file){
+           const imageUrl = await uploadImageToSupabase(req.file, "imagenes")
+           productData.image = imageUrl
+        }
 
         const updatedProduct = await updateProductService(id, productData)
         // Cod 201 -> Registro creado / actualizado

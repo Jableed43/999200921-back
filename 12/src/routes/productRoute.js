@@ -3,17 +3,18 @@ import { createProduct, deleteProduct, getAllProduct, updateProduct, getProductB
 import { verifyTokenMiddleware } from '../middlewares/verifyTokenMiddleware.js'
 import { verifyRoleMiddleware } from '../middlewares/verifyRoleMiddleware.js'
 import { roleEnum } from '../models/userModel.js'
+import upload from '../middlewares/multerMiddleware.js'
 
 const productRoute = express.Router()
 
 // Creamos los endpoints
-productRoute.post("/", verifyTokenMiddleware, verifyRoleMiddleware([roleEnum[0]], [roleEnum[1]]), createProduct)
+productRoute.post("/", verifyTokenMiddleware, verifyRoleMiddleware([roleEnum[0]], [roleEnum[1]]), upload.single('image'), createProduct)
 productRoute.get("/", getAllProduct )
 productRoute.get("/:id", getProductById) // Nuevo endpoint individual para el Detalle en React
 
 // Tanto put como patch se comportan igual con mongoose
-productRoute.patch("/:id", verifyTokenMiddleware, verifyRoleMiddleware([roleEnum[0]], [roleEnum[1]]), updateProduct)
-productRoute.put("/:id", verifyTokenMiddleware, verifyRoleMiddleware([roleEnum[0]], [roleEnum[1]]), updateProduct)
+productRoute.patch("/:id", verifyTokenMiddleware, verifyRoleMiddleware([roleEnum[0]], [roleEnum[1]]), upload.single('image'), updateProduct)
+productRoute.put("/:id", verifyTokenMiddleware, verifyRoleMiddleware([roleEnum[0]], [roleEnum[1]]), upload.single('image'), updateProduct)
 productRoute.delete("/:id", verifyTokenMiddleware, verifyRoleMiddleware([roleEnum[0]], [roleEnum[1]]), deleteProduct)
 
 export default productRoute

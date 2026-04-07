@@ -54,6 +54,10 @@ const productSchema = new mongoose.Schema({
     highlighted: {
         type: Boolean,
         default: false
+    },
+    image: {
+        type: String,
+        default: "https://cdn-icons-png.flaticon.com/256/12457/12457612.png"
     }
 
 }, { 
