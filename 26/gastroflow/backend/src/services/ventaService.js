@@ -4,7 +4,6 @@ import Producto from '../models/productoModel.js'
 import Insumo from '../models/insumoModel.js'
 
 // ETAPA 1: Crear Comanda (Reserva de Stock)
-// El mozo inicia el pedido. El stock se bloquea (reserva) pero no se descuenta físicamente.
 export const createVentaService = async (items, mozoId) => {
     if (!items || items.length === 0) {
         const error = new Error('La comanda no tiene items')
@@ -12,14 +11,15 @@ export const createVentaService = async (items, mozoId) => {
         throw error
     }
 
-    const session = await mongoose.startSession()
-    session.startTransaction()
+    // En ambiente de test podemos desactivar transacciones si el server no es Replica Set
+    const session = process.env.NODE_ENV === 'test' ? null : await mongoose.startSession()
+    if (session) session.startTransaction()
 
     try {
         let total_ingresos = 0
         let total_costo = 0
         const ventaItems = []
-        const reservasMap = {} // { insumo_id: cantidad_total_a_reservar }
+        const reservasMap = {}
 
         for (const item of items) {
             const producto = await Producto.findOne({ _id: item.producto_id, activo: true })
@@ -33,7 +33,6 @@ export const createVentaService = async (items, mozoId) => {
 
             let costo_unitario = 0
 
-            // Calcular qué insumos reservar
             if (producto.tipo === 'directo') {
                 const insumo = producto.insumo_directo
                 const key = insumo._id.toString()
@@ -62,7 +61,6 @@ export const createVentaService = async (items, mozoId) => {
             })
         }
 
-        // VALIDACIÓN: ¿Me queda stock neto suficiente sin cruzar el MÍNIMO?
         for (const [insumo_id, cantidad] of Object.entries(reservasMap)) {
             const insumo = await Insumo.findById(insumo_id).session(session)
             const stockDisponibleVenta = insumo.stock_actual - insumo.stock_reservado
@@ -74,7 +72,6 @@ export const createVentaService = async (items, mozoId) => {
             }
         }
 
-        // EJECUTAR RESERVA (Incrementar stock_reservado)
         for (const [insumo_id, cantidad] of Object.entries(reservasMap)) {
             await Insumo.findByIdAndUpdate(
                 insumo_id,
@@ -93,26 +90,33 @@ export const createVentaService = async (items, mozoId) => {
         })
         await venta.save({ session })
 
-        await session.commitTransaction()
-        session.endSession()
+        if (session) {
+            await session.commitTransaction()
+            session.endSession()
+        }
         return venta
 
     } catch (error) {
-        await session.abortTransaction()
-        session.endSession()
+        if (session) {
+            await session.abortTransaction()
+            session.endSession()
+        }
         throw error
     }
 }
 
 // ETAPA 2: Procesar Pedido (Deducción Física)
-// El chef termina el plato. Se descuenta del stock_actual y se libera la reserva.
 export const prepararPedidoService = async (ventaId) => {
-    const session = await mongoose.startSession()
-    session.startTransaction()
+    const session = process.env.NODE_ENV === 'test' ? null : await mongoose.startSession()
+    if (session) session.startTransaction()
 
     try {
         const venta = await Venta.findById(ventaId).populate('items.producto').session(session)
-        if (!venta) throw new Error('Comanda no encontrada')
+        if (!venta) {
+            const error = new Error('Comanda no encontrada')
+            error.statusCode = 404
+            throw error
+        }
         if (venta.estado !== 'PENDIENTE') throw new Error(`La comanda no está pendiente (Estado actual: ${venta.estado})`)
 
         for (const item of venta.items) {
@@ -137,12 +141,16 @@ export const prepararPedidoService = async (ventaId) => {
         venta.preparadoAt = new Date()
         await venta.save({ session })
 
-        await session.commitTransaction()
-        session.endSession()
+        if (session) {
+            await session.commitTransaction()
+            session.endSession()
+        }
         return venta
     } catch (error) {
-        await session.abortTransaction()
-        session.endSession()
+        if (session) {
+            await session.abortTransaction()
+            session.endSession()
+        }
         throw error
     }
 }
@@ -150,7 +158,11 @@ export const prepararPedidoService = async (ventaId) => {
 // ETAPA 3: Entrega Final
 export const entregarPedidoService = async (ventaId) => {
     const venta = await Venta.findById(ventaId)
-    if (!venta) throw new Error('Comanda no encontrada')
+    if (!venta) {
+        const error = new Error('Comanda no encontrada')
+        error.statusCode = 404
+        throw error
+    }
     if (venta.estado !== 'LISTO') throw new Error('Solo se pueden entregar pedidos que estén listos')
 
     venta.estado = 'ENTREGADO'

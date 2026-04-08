@@ -1,0 +1,65 @@
+
+> gastroflow-backend@1.0.0 test
+> cross-env NODE_ENV=test jest --runInBand --forceExit --verbose
+
+FAIL src/tests/edgeCases.test.js
+  Edge Cases & Error Handling
+    √ 400: Comanda vacía (166 ms)
+    √ 403: Mozo intenta crear insumo (88 ms)
+    √ 404: Insumo inexistente (87 ms)
+    √ 404: Producto inexistente (86 ms)
+    × 404: Venta inexistente (89 ms)
+
+  ● Edge Cases & Error Handling › 404: Venta inexistente
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: 404
+    Received: 500
+
+    [0m [90m 74 |[39m         [36mconst[39m res [33m=[39m [36mawait[39m request(app)[33m.[39mpatch([32m`/api/venta/${fakeId}/listo`[39m)
+     [90m 75 |[39m             [33m.[39m[36mset[39m([32m'Authorization'[39m[33m,[39m [32m`Bearer ${token}`[39m)
+    [31m[1m>[22m[39m[90m 76 |[39m         expect(res[33m.[39mstatus)[33m.[39mtoBe([35m404[39m)
+     [90m    |[39m                            [31m[1m^[22m[39m
+     [90m 77 |[39m     })
+     [90m 78 |[39m })
+     [90m 79 |[39m[0m
+
+      at Object.toBe (src/tests/edgeCases.test.js:76:28)
+
+PASS src/tests/adminCRUD.test.js
+  Admin CRUD & Dashboard Integration
+    √ Insumos CRUD (129 ms)
+    √ Productos CRUD (98 ms)
+    √ Dashboard Access (90 ms)
+    √ User Management & Errors (95 ms)
+
+PASS src/tests/ventaRoute.test.js
+  Venta Route Integration - Flujo Mozo-Chef
+    √ Flujo Completo: Mozo pide -> Chef cocina -> Mozo entrega (288 ms)
+
+PASS src/tests/ventaService.test.js
+  Venta Service - Gestión de Pedidos y Stock
+    √ Etapa 1: Debe reservar stock correctamente al crear la comanda (100 ms)
+    √ Bloqueo por Mínimo: Debe fallar si el pedido compromete el stock mínimo (46 ms)
+    √ Etapa 2: Debe descontar stock físico y limpiar reserva al marcar como LISTO (53 ms)
+    √ Etapa 3: Debe marcar como ENTREGADO correctamente (52 ms)
+
+PASS src/tests/usuarioService.test.js
+  Usuario Service - Autenticación y Perfiles
+    √ Debe hashear la contraseña al registrar un usuario (87 ms)
+    √ Debe permitir el login con credenciales válidas (82 ms)
+    √ Debe fallar login con contraseña incorrecta (83 ms)
+
+PASS src/tests/productoService.test.js
+  Producto Service - Lógica de Disponibilidad y Costos
+    √ Debe marcar producto como disponible si hay stock neto suficiente (49 ms)
+    √ Debe marcar como NO disponible si el stock neto cae por debajo del mínimo (6 ms)
+    √ Debe calcular correctamente el margen (5 ms)
+
+Test Suites: 1 failed, 5 passed, 6 total
+Tests:       1 failed, 19 passed, 20 total
+Snapshots:   0 total
+Time:        4.911 s, estimated 6 s
+Ran all test suites.
+Force exiting Jest: Have you considered using `--detectOpenHandles` to detect async operations that kept running after all tests finished?
