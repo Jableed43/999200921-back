@@ -11,9 +11,15 @@ export const createVentaService = async (items, mozoId) => {
         throw error
     }
 
-    // En ambiente de test podemos desactivar transacciones si el server no es Replica Set
-    const session = process.env.NODE_ENV === 'test' ? null : await mongoose.startSession()
-    if (session) session.startTransaction()
+    // Intentar iniciar sesión (requiere Replica Set). Si falla, procedemos sin transacción para desarrollo local.
+    let session = null
+    try {
+        session = await mongoose.startSession()
+        if (session) session.startTransaction()
+    } catch (e) {
+        console.warn('⚠️ MongoDB standalone detectado. Las transacciones están desactivadas.')
+        session = null
+    }
 
     try {
         let total_ingresos = 0
@@ -107,8 +113,13 @@ export const createVentaService = async (items, mozoId) => {
 
 // ETAPA 2: Procesar Pedido (Deducción Física)
 export const prepararPedidoService = async (ventaId) => {
-    const session = process.env.NODE_ENV === 'test' ? null : await mongoose.startSession()
-    if (session) session.startTransaction()
+    let session = null
+    try {
+        session = await mongoose.startSession()
+        if (session) session.startTransaction()
+    } catch (e) {
+        session = null
+    }
 
     try {
         const venta = await Venta.findById(ventaId).populate('items.producto').session(session)
