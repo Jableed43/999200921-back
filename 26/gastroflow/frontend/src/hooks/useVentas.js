@@ -20,12 +20,31 @@ export const useVentas = () => {
 
     const crearVenta = async (items) => {
         try {
-            await api.post('/venta', { items })
-            Swal.fire('✅ Enviado', 'La cocina ha recibido la comanda', 'success')
-            return true
+            const res = await api.post('/venta', { items })
+            return res.data.venta // Retorna el objeto venta completo (incluye _id)
         } catch (err) {
             Swal.fire('Error', err.response?.data?.message || 'Error al enviar pedido', 'error')
-            return false
+            return null
+        }
+    }
+
+    const generarQR = async (ventaId) => {
+        try {
+            const res = await api.post(`/pagos/${ventaId}/qr`)
+            return res.data // { orderId, qrData, total }
+        } catch (err) {
+            console.error('Error generando QR:', err)
+            Swal.fire('Error', 'No se pudo generar el código QR de pago', 'error')
+            return null
+        }
+    }
+
+    const consultarPago = async (ventaId) => {
+        try {
+            const res = await api.get(`/pagos/${ventaId}/status`)
+            return res.data
+        } catch (err) {
+            return null
         }
     }
 
@@ -33,7 +52,6 @@ export const useVentas = () => {
         try {
             await api.patch(`/venta/${id}/listo`)
             Swal.fire({ title: '¡Hecho!', icon: 'success', toast: true, position: 'top-end', showConfirmButton: false, timer: 3000 })
-            fetchVentas({ estado: 'PENDIENTE' })
             return true
         } catch (err) {
             Swal.fire('Error', 'No se pudo procesar el pedido', 'error')
@@ -53,5 +71,5 @@ export const useVentas = () => {
         }
     }
 
-    return { ventas, loading, fetchVentas, crearVenta, marcarComoListo, entregarPedido }
+    return { ventas, loading, fetchVentas, crearVenta, generarQR, consultarPago, marcarComoListo, entregarPedido }
 }

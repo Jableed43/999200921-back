@@ -3,6 +3,28 @@ import Venta from '../models/ventaModel.js'
 import Producto from '../models/productoModel.js'
 import Insumo from '../models/insumoModel.js'
 
+/**
+ * Detecta si el servidor MongoDB soporta transacciones.
+ * 
+ * CAUSA RAÍZ DEL BUG:
+ * mongoose.startSession() y session.startTransaction() son operaciones
+ * CLIENT-SIDE que NUNCA lanzan error, incluso en MongoDB standalone.
+ * El error "Transaction numbers are only allowed on a replica set member
+ * or mongos" explota recién cuando la primera query con metadatos de
+ * sesión (LSID + txnNumber) llega al servidor. Por eso los try-catch
+ * anteriores alrededor de startTransaction() no atrapaban nada.
+ * 
+ * SOLUCIÓN: Inspeccionar la topología del driver ANTES de crear sesiones.
+ */
+const supportsTransactions = () => {
+    try {
+        const topology = mongoose.connection.client?.topology?.description?.type
+        return topology === 'ReplicaSetWithPrimary' || topology === 'Sharded'
+    } catch {
+        return false
+    }
+}
+
 // ETAPA 1: Crear Comanda (Reserva de Stock)
 export const createVentaService = async (items, mozoId) => {
     if (!items || items.length === 0) {
@@ -11,14 +33,12 @@ export const createVentaService = async (items, mozoId) => {
         throw error
     }
 
-    // Intentar iniciar sesión (requiere Replica Set). Si falla, procedemos sin transacción para desarrollo local.
+    const canTransact = supportsTransactions()
     let session = null
-    try {
+
+    if (canTransact) {
         session = await mongoose.startSession()
-        if (session) session.startTransaction()
-    } catch (e) {
-        console.warn('⚠️ MongoDB standalone detectado. Las transacciones están desactivadas.')
-        session = null
+        session.startTransaction()
     }
 
     try {
@@ -28,13 +48,15 @@ export const createVentaService = async (items, mozoId) => {
         const reservasMap = {}
 
         for (const item of items) {
-            const producto = await Producto.findOne({ _id: item.producto_id, activo: true })
+            const query = Producto.findOne({ _id: item.producto, activo: true })
                 .populate('receta.insumo')
                 .populate('insumo_directo')
-                .session(session)
+
+            if (session) query.session(session)
+            const producto = await query
 
             if (!producto) {
-                throw new Error(`Producto no encontrado o inactivo: ${item.producto_id}`)
+                throw new Error(`Producto no encontrado o inactivo: ${item.producto}`)
             }
 
             let costo_unitario = 0
@@ -67,22 +89,26 @@ export const createVentaService = async (items, mozoId) => {
             })
         }
 
+        // Validación de Stock
         for (const [insumo_id, cantidad] of Object.entries(reservasMap)) {
-            const insumo = await Insumo.findById(insumo_id).session(session)
+            const queryInsumo = Insumo.findById(insumo_id)
+            if (session) queryInsumo.session(session)
+            const insumo = await queryInsumo
+
             const stockDisponibleVenta = insumo.stock_actual - insumo.stock_reservado
-            
             if (stockDisponibleVenta - cantidad < insumo.stock_minimo) {
                 throw new Error(
-                    `Bloqueo por Stock Mínimo: "${insumo.nombre}" llegaría al límite de seguridad. Disponible: ${stockDisponibleVenta}, Requerido: ${cantidad}, Mínimo: ${insumo.stock_minimo}`
+                    `Stock insuficiente para "${insumo.nombre}".`
                 )
             }
         }
 
+        // Aplicar Reservas
         for (const [insumo_id, cantidad] of Object.entries(reservasMap)) {
             await Insumo.findByIdAndUpdate(
                 insumo_id,
                 { $inc: { stock_reservado: cantidad } },
-                { session }
+                session ? { session } : {}
             )
         }
 
@@ -94,12 +120,14 @@ export const createVentaService = async (items, mozoId) => {
             total_costo: parseFloat(total_costo.toFixed(2)),
             margen: parseFloat((total_ingresos - total_costo).toFixed(2)),
         })
-        await venta.save({ session })
+
+        await venta.save(session ? { session } : {})
 
         if (session) {
             await session.commitTransaction()
             session.endSession()
         }
+
         return venta
 
     } catch (error) {
@@ -113,50 +141,53 @@ export const createVentaService = async (items, mozoId) => {
 
 // ETAPA 2: Procesar Pedido (Deducción Física)
 export const prepararPedidoService = async (ventaId) => {
+    const canTransact = supportsTransactions()
     let session = null
-    try {
+
+    if (canTransact) {
         session = await mongoose.startSession()
-        if (session) session.startTransaction()
-    } catch (e) {
-        session = null
+        session.startTransaction()
     }
 
     try {
-        const venta = await Venta.findById(ventaId).populate('items.producto').session(session)
-        if (!venta) {
-            const error = new Error('Comanda no encontrada')
-            error.statusCode = 404
-            throw error
-        }
-        if (venta.estado !== 'PENDIENTE') throw new Error(`La comanda no está pendiente (Estado actual: ${venta.estado})`)
+        const queryVenta = Venta.findById(ventaId).populate('items.producto')
+        if (session) queryVenta.session(session)
+        const venta = await queryVenta
+
+        if (!venta) throw new Error('Comanda no encontrada')
+        if (venta.estado !== 'PENDIENTE') throw new Error('Estado inválido')
 
         for (const item of venta.items) {
-            const producto = await Producto.findById(item.producto).populate('receta.insumo').populate('insumo_directo').session(session)
-            
+            const prodQuery = Producto.findById(item.producto)
+                .populate('receta.insumo')
+                .populate('insumo_directo')
+            if (session) prodQuery.session(session)
+            const producto = await prodQuery
+
             if (producto.tipo === 'directo') {
-                const insumoId = producto.insumo_directo._id
-                await Insumo.findByIdAndUpdate(insumoId, {
+                await Insumo.findByIdAndUpdate(producto.insumo_directo._id, {
                     $inc: { stock_actual: -item.cantidad, stock_reservado: -item.cantidad }
-                }, { session })
+                }, session ? { session } : {})
             } else {
                 for (const recetaItem of producto.receta) {
                     const cantTotal = recetaItem.cantidad * item.cantidad
                     await Insumo.findByIdAndUpdate(recetaItem.insumo._id, {
                         $inc: { stock_actual: -cantTotal, stock_reservado: -cantTotal }
-                    }, { session })
+                    }, session ? { session } : {})
                 }
             }
         }
 
         venta.estado = 'LISTO'
         venta.preparadoAt = new Date()
-        await venta.save({ session })
+        await venta.save(session ? { session } : {})
 
         if (session) {
             await session.commitTransaction()
             session.endSession()
         }
         return venta
+
     } catch (error) {
         if (session) {
             await session.abortTransaction()
@@ -169,13 +200,7 @@ export const prepararPedidoService = async (ventaId) => {
 // ETAPA 3: Entrega Final
 export const entregarPedidoService = async (ventaId) => {
     const venta = await Venta.findById(ventaId)
-    if (!venta) {
-        const error = new Error('Comanda no encontrada')
-        error.statusCode = 404
-        throw error
-    }
-    if (venta.estado !== 'LISTO') throw new Error('Solo se pueden entregar pedidos que estén listos')
-
+    if (!venta || venta.estado !== 'LISTO') throw new Error('Operación no permitida')
     venta.estado = 'ENTREGADO'
     venta.entregadoAt = new Date()
     return await venta.save()
@@ -186,7 +211,12 @@ export const getAllVentaService = async (query = {}) => {
     if (query.estado) filters.estado = query.estado
     if (query.mozo) filters.mozo = query.mozo
 
-    return await Venta.find(filters)
-        .populate('mozo', 'nombre apellido')
-        .sort({ createdAt: -1 })
+    // Filtro por día: si viene ?today=true, solo traer las de hoy
+    if (query.today === 'true') {
+        const startOfDay = new Date()
+        startOfDay.setHours(0, 0, 0, 0)
+        filters.createdAt = { $gte: startOfDay }
+    }
+
+    return await Venta.find(filters).populate('mozo', 'nombre apellido').sort({ createdAt: -1 })
 }

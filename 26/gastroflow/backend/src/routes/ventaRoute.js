@@ -25,10 +25,10 @@ ventaRoute.patch('/:id/listo',
     prepararPedido
 )
 
-// MOZO y ADMIN pueden marcar como ENTREGADO
+// MOZO, CHEF y ADMIN pueden marcar como ENTREGADO
 ventaRoute.patch('/:id/entregar', 
     verifyTokenMiddleware, 
-    verifyRoleMiddleware([roleEnum[0], roleEnum[2]]), 
+    verifyRoleMiddleware([roleEnum[0], roleEnum[1], roleEnum[2]]), 
     entregarPedido
 )
 

@@ -42,6 +42,10 @@ const ventaSchema = new mongoose.Schema({
     // Timestamps de proceso
     preparadoAt:    { type: Date },
     entregadoAt:    { type: Date },
+    // Mercado Pago
+    mp_order_id:    { type: String },
+    mp_qr_data:     { type: String },
+    mp_status:      { type: String, default: null },
 }, { timestamps: true })
 
 ventaSchema.set('toJSON', { getters: true, virtuals: true })

@@ -10,6 +10,8 @@ import Insumos from './views/admin/Insumos'
 import Productos from './views/admin/Productos'
 import POS from './views/mozo/POS'
 import KDS from './views/chef/KDS'
+import KDSFullscreen from './views/chef/KDSFullscreen'
+import Home from './views/Home'
 
 // Definición de componente para protección de rutas
 const ProtectedRoute = ({ children, roles }) => {
@@ -22,6 +24,15 @@ const ProtectedRoute = ({ children, roles }) => {
     return <MainLayout>{children}</MainLayout>
 }
 
+// Ruta protegida SIN layout (para pantallas fullscreen como KDS)
+const ProtectedRaw = ({ children, roles }) => {
+    const { user, loading } = useAuth()
+    if (loading) return null
+    if (!user) return <Navigate to="/login" />
+    if (roles && !roles.includes(user.role)) return <Navigate to="/" />
+    return children
+}
+
 function AppContent() {
     const { user } = useAuth()
 
@@ -30,12 +41,13 @@ function AppContent() {
             <Route path="/login" element={!user ? <Login /> : <Navigate to="/" />} />
             
             {/* Rutas Protegidas */}
-            <Route path="/" element={<ProtectedRoute roles={['ADMIN', 'CHEF', 'MOZO']}><div>Selecciona una opción del menú</div></ProtectedRoute>} />
+            <Route path="/" element={<ProtectedRoute roles={['ADMIN', 'CHEF', 'MOZO']}><Home /></ProtectedRoute>} />
             <Route path="/admin/dashboard" element={<ProtectedRoute roles={['ADMIN']}><Dashboard /></ProtectedRoute>} />
             <Route path="/admin/insumos" element={<ProtectedRoute roles={['ADMIN', 'CHEF']}><Insumos /></ProtectedRoute>} />
             <Route path="/admin/productos" element={<ProtectedRoute roles={['ADMIN']}><Productos /></ProtectedRoute>} />
             <Route path="/pos" element={<ProtectedRoute roles={['ADMIN', 'MOZO']}><POS /></ProtectedRoute>} />
             <Route path="/kds" element={<ProtectedRoute roles={['ADMIN', 'CHEF']}><KDS /></ProtectedRoute>} />
+            <Route path="/kds/live" element={<ProtectedRaw roles={['ADMIN', 'CHEF']}><KDSFullscreen /></ProtectedRaw>} />
             <Route path="/admin/usuarios" element={<ProtectedRoute roles={['ADMIN']}><div>Usuarios</div></ProtectedRoute>} />
 
             <Route path="*" element={<Navigate to="/" />} />

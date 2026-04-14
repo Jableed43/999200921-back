@@ -12,6 +12,7 @@ import productoRoute from './src/routes/productoRoute.js'
 import ventaRoute from './src/routes/ventaRoute.js'
 import dashboardRoute from './src/routes/dashboardRoute.js'
 import usuarioRoute from './src/routes/usuarioRoute.js'
+import pagoRoute from './src/routes/pagoRoute.js'
 
 const app = express()
 const server = http.createServer(app)
@@ -36,6 +37,7 @@ app.use('/api/producto', productoRoute)
 app.use('/api/venta', ventaRoute)
 app.use('/api/dashboard', dashboardRoute)
 app.use('/api/usuario', usuarioRoute)
+app.use('/api/pagos', pagoRoute)
 
 export { app, server }
 export default app

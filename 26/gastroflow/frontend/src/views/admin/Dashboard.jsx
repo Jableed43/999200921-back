@@ -1,7 +1,18 @@
-import { useEffect } from 'react'
+import { useEffect, useState, useMemo } from 'react'
 import { Grid, Paper, Typography, Box, Card, CardContent, Divider, useTheme, List, ListItem, ListItemText } from '@mui/material'
-import { TrendingUp as TrendingUpIcon, ShoppingCart as ShoppingCartIcon, Warning as WarningIcon } from '@mui/icons-material'
+import { TrendingUp as TrendingUpIcon, ShoppingCart as ShoppingCartIcon, Warning as WarningIcon, BarChart as BarChartIcon } from '@mui/icons-material'
 import { useDashboard } from '../../hooks/useDashboard'
+import AnalyticsFilters from '../../components/dashboard/AnalyticsFilters'
+import AnalyticsCharts from '../../components/dashboard/AnalyticsCharts'
+import { 
+    generateMockAnalytics, 
+    getFilteredAnalytics, 
+    transformVentasByMozo, 
+    transformVentasByProducto, 
+    transformInsumosByTime, 
+    transformMarginalContribution 
+} from '../../utils/mockAnalytics'
+import { format, subMonths } from 'date-fns'
 
 const StatCard = ({ title, value, icon, color }) => (
     <Card sx={{ height: '100%', boxShadow: 3, borderLeft: `6px solid ${color}` }}>
@@ -25,19 +36,41 @@ const Dashboard = () => {
     const { data, loading, fetchDashboard } = useDashboard()
     const theme = useTheme()
 
+    // Estados para Analíticas
+    const [startDate, setStartDate] = useState(format(subMonths(new Date(), 1), 'yyyy-MM-dd'))
+    const [endDate, setEndDate] = useState(format(new Date(), 'yyyy-MM-dd'))
+    
+    // Mock Data (Persistente durante la sesión)
+    const [allAnalytics] = useState(() => generateMockAnalytics())
+
+    const filteredAnalytics = useMemo(() => {
+        return getFilteredAnalytics(allAnalytics, startDate, endDate)
+    }, [allAnalytics, startDate, endDate])
+
+    const chartData = useMemo(() => ({
+        mozo: transformVentasByMozo(filteredAnalytics),
+        producto: transformVentasByProducto(filteredAnalytics),
+        insumos: transformInsumosByTime(filteredAnalytics),
+        margen: transformMarginalContribution(filteredAnalytics)
+    }), [filteredAnalytics])
+
     useEffect(() => {
         fetchDashboard()
     }, [fetchDashboard])
 
-    if (loading || !data) return <Typography>Cargando Dashboard...</Typography>
+    if (loading || !data) return <Typography sx={{ m: 4 }}>Cargando Dashboard...</Typography>
 
     return (
-        <Box sx={{ flexGrow: 1 }}>
-            <Typography variant="h4" sx={{ mb: 4, fontWeight: 700 }}>
-                Dashboard <span style={{ color: theme.palette.primary.main }}>Global</span>
-            </Typography>
+        <Box sx={{ flexGrow: 1, p: 2 }}>
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 4 }}>
+                <Typography variant="h4" sx={{ fontWeight: 700 }}>
+                    GastroFlow <span style={{ color: theme.palette.primary.main }}>BI & Analytics</span>
+                </Typography>
+                <BarChartIcon sx={{ fontSize: 40, opacity: 0.5 }} />
+            </Box>
 
-            <Grid container spacing={3}>
+            {/* Fila de Estadísticas Rápidas */}
+            <Grid container spacing={3} sx={{ mb: 4 }}>
                 <Grid item xs={12} sm={6} md={3}>
                     <StatCard 
                         title="Ventas Totales" 
@@ -70,13 +103,33 @@ const Dashboard = () => {
                         color="#f44336" 
                     />
                 </Grid>
+            </Grid>
 
+            <Divider sx={{ mb: 4 }} />
+
+            {/* SECCIÓN DE ANALÍTICAS DINÁMICAS */}
+            <AnalyticsFilters 
+                startDate={startDate} 
+                endDate={endDate} 
+                setStartDate={setStartDate} 
+                setEndDate={setEndDate} 
+            />
+
+            <AnalyticsCharts 
+                dataByMozo={chartData.mozo}
+                dataByProducto={chartData.producto}
+                dataInsumos={chartData.insumos}
+                dataMargen={chartData.margen}
+            />
+
+            {/* Sección de Inventario Crítico (Original) */}
+            <Grid container sx={{ mt: 4 }}>
                 <Grid item xs={12}>
-                    <Paper sx={{ p: 4, mt: 2 }}>
-                        <Typography variant="h6" sx={{ mb: 2, fontWeight: 600 }}>Insumos Críticos</Typography>
+                    <Paper sx={{ p: 4, bgcolor: 'background.paper', border: '1px solid #333' }}>
+                        <Typography variant="h6" sx={{ mb: 2, fontWeight: 600 }}>Insumos Críticos de la Operación</Typography>
                         <Divider sx={{ mb: 2 }} />
                         {data.inventario.alertas_reposicion.length === 0 ? (
-                            <Typography color="text.secondary">Todo en orden. No hay alertas.</Typography>
+                            <Typography color="text.secondary">Todo en orden. No hay alertas de stock actuales.</Typography>
                         ) : (
                             <List>
                                 {data.inventario.alertas_reposicion.map((alerta, index) => (

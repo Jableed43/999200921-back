@@ -1,8 +1,9 @@
 import { useState } from 'react'
 import { Box, Drawer, AppBar, Toolbar, List, Typography, Divider, IconButton, ListItem, ListItemButton, ListItemIcon, ListItemText, Avatar, Menu, MenuItem, Tooltip } from '@mui/material'
-import { Menu as MenuIcon, ChevronLeft as ChevronLeftIcon, Dashboard as DashboardIcon, RestaurantMenu as RestaurantMenuIcon, Kitchen as KitchenIcon, Inventory as InventoryIcon, People as PeopleIcon, ExitToApp as ExitToAppIcon } from '@mui/icons-material'
+import { Menu as MenuIcon, ChevronLeft as ChevronLeftIcon, Dashboard as DashboardIcon, RestaurantMenu as RestaurantMenuIcon, Kitchen as KitchenIcon, Inventory as InventoryIcon, People as PeopleIcon, ExitToApp as ExitToAppIcon, Home as HomeIcon } from '@mui/icons-material'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
+import Logo from '../components/Logo'
 
 const drawerWidth = 260
 
@@ -24,6 +25,7 @@ const MainLayout = ({ children }) => {
     }
 
     const menuItems = [
+        { text: 'Inicio', icon: <HomeIcon />, path: '/', roles: ['ADMIN', 'CHEF', 'MOZO'] },
         { text: 'Dashboard', icon: <DashboardIcon />, path: '/admin/dashboard', roles: ['ADMIN'] },
         { text: 'Insumos', icon: <InventoryIcon />, path: '/admin/insumos', roles: ['ADMIN', 'CHEF'] },
         { text: 'Productos', icon: <RestaurantMenuIcon />, path: '/admin/productos', roles: ['ADMIN'] },
@@ -41,7 +43,9 @@ const MainLayout = ({ children }) => {
                     <IconButton color="inherit" onClick={toggleDrawer} edge="start" sx={{ mr: 2 }}>
                         <MenuIcon />
                     </IconButton>
-                    <RestaurantMenuIcon sx={{ mr: 1, color: 'primary.main' }} />
+                    <Box sx={{ mr: 1, display: 'flex', alignItems: 'center' }}>
+                        <Logo size={32} color="#EB8D29" />
+                    </Box>
                     <Typography variant="h6" noWrap component="div" sx={{ flexGrow: 1, fontWeight: 700, letterSpacing: 1 }}>
                         Gastro<span style={{ color: '#ff9800' }}>Flow</span>
                     </Typography>

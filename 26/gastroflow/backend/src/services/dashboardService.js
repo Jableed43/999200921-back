@@ -66,3 +66,116 @@ export const getDashboardService = async () => {
         }
     }
 }
+
+export const getAnalyticsService = async (startDate, endDate) => {
+    const start = new Date(startDate)
+    const end = new Date(endDate)
+    end.setHours(23, 59, 59, 999) // Incluir el día completo
+
+    const matchStage = {
+        $match: {
+            createdAt: { $gte: start, $lte: end }
+        }
+    }
+
+    // 1. Ventas por Mozo
+    const ventasPorMozo = await Venta.aggregate([
+        matchStage,
+        {
+            $lookup: {
+                from: 'usuarios',
+                localField: 'mozo',
+                foreignField: '_id',
+                as: 'mozoInfo'
+            }
+        },
+        { $unwind: '$mozoInfo' },
+        {
+            $group: {
+                _id: {
+                    date: { $dateToString: { format: '%Y-%m-%d', date: '$createdAt' } },
+                    mozo: '$mozoInfo.nombre'
+                },
+                total: { $sum: '$total_ingresos' }
+            }
+        },
+        {
+            $project: {
+                _id: 0,
+                date: '$_id.date',
+                mozo: '$_id.mozo',
+                total: 1
+            }
+        },
+        { $sort: { date: 1 } }
+    ])
+
+    // 2. Ventas por Producto
+    const ventasPorProducto = await Venta.aggregate([
+        matchStage,
+        { $unwind: '$items' },
+        {
+            $group: {
+                _id: '$items.nombre_producto',
+                total: { $sum: { $multiply: ['$items.cantidad', '$items.precio_unitario'] } }
+            }
+        },
+        {
+            $project: {
+                _id: 0,
+                nombre: '$_id',
+                total: 1
+            }
+        },
+        { $sort: { total: -1 } }
+    ])
+
+    // 3. Insumos por Tiempo (Estimado por ventas)
+    // Nota: Aquí simplificamos el consumo basado en la suma de items vendidos
+    const insumosPorTiempo = await Venta.aggregate([
+        matchStage,
+        { $unwind: '$items' },
+        {
+            $group: {
+                _id: { $dateToString: { format: '%Y-%m-%d', date: '$createdAt' } },
+                cantidad: { $sum: '$items.cantidad' }
+            }
+        },
+        {
+            $project: {
+                _id: 0,
+                date: '$_id',
+                cantidad: 1
+            }
+        },
+        { $sort: { date: 1 } }
+    ])
+
+    // 4. Margen de Ganancia (Contribución Marginal)
+    const contribucionMarginal = await Venta.aggregate([
+        matchStage,
+        { $unwind: '$items' },
+        {
+            $group: {
+                _id: '$items.nombre_producto',
+                margenTotal: { $sum: { $subtract: [{ $multiply: ['$items.cantidad', '$items.precio_unitario'] }, { $multiply: ['$items.cantidad', '$items.costo_unitario'] }] } },
+                costoTotal: { $sum: { $multiply: ['$items.cantidad', '$items.costo_unitario'] } }
+            }
+        },
+        {
+            $project: {
+                _id: 0,
+                nombre: '$_id',
+                margenTotal: 1,
+                costoTotal: 1
+            }
+        }
+    ])
+
+    return {
+        ventasPorMozo,
+        ventasPorProducto,
+        insumosPorTiempo,
+        contribucionMarginal
+    }
+}

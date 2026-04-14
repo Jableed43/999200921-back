@@ -1,9 +1,10 @@
 import { useState } from 'react'
 import { Box, Paper, Typography, TextField, Button, InputAdornment, IconButton, Avatar, Container, Alert } from '@mui/material'
-import { Email as EmailIcon, Lock as LockIcon, Visibility as VisibilityIcon, VisibilityOff as VisibilityOffIcon, RestaurantMenu as RestaurantMenuIcon } from '@mui/icons-material'
+import { Email as EmailIcon, Lock as LockIcon, Visibility as VisibilityIcon, VisibilityOff as VisibilityOffIcon } from '@mui/icons-material'
 import { useAuth } from '../context/AuthContext'
 import { useNavigate } from 'react-router-dom'
 import api from '../services/api'
+import Logo from '../components/Logo'
 
 const Login = () => {
     const [credentials, setCredentials] = useState({ email: '', password: '' })
@@ -48,9 +49,7 @@ const Login = () => {
 
             <Container maxWidth="xs">
                 <Paper elevation={12} sx={{ p: 4, display: 'flex', flexDirection: 'column', alignItems: 'center', backdropFilter: 'blur(10px)', bgcolor: 'rgba(30, 30, 30, 0.8)', border: '1px solid rgba(255, 255, 255, 0.1)' }}>
-                    <Avatar sx={{ m: 1, bgcolor: 'primary.main', width: 60, height: 60 }}>
-                        <RestaurantMenuIcon fontSize="large" />
-                    </Avatar>
+                    <Logo size={80} color="#EB8D29" />
                     <Typography component="h1" variant="h5" sx={{ fontWeight: 800, mb: 1 }}>
                         Gastro<span style={{ color: '#ff9800' }}>Flow</span>
                     </Typography>
