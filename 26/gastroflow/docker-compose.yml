@@ -1,0 +1,48 @@
+version: '3.8'
+
+services:
+  api:
+    # build es cuando creas el archivo
+    # build:
+    #   context: ./backend
+    #   dockerfile: Dockerfile
+    # la image descarga tu image subida a dockerhub o la toma desde local
+    image: javiernehuen/gastroflow-api:v1
+    container_name: gastroflow_api
+    ports:
+      #puertoSalida:puertoVirtual
+      - "3000:3000"
+    environment:
+      #Colocamos las variables de entorno para la conexion
+      - PORT=3000
+      - MONGO_URI=mongodb://admin:secret@database:27017/gastroflow?authSource=admin
+      - SECRET="secret"
+      - MP_ACCESS_TOKEN=APP_USR-5680763241345969-041320-a1cbc7a2a35905e2b771fc8b1b2fd182-39390652
+      - MP_PUBLIC_KEY=APP_USR-9eb8b242-70bc-42d1-8442-c477a205c1bc
+    depends_on:
+    # al usar depends on, va a levantar el sistema del que dependa
+      - database
+    networks:
+    # es una red interna que funciona entre contenedores
+      - app-network
+  database:
+    image: mongo:latest
+    container_name: gastroflow_db
+    ports:
+      - "27018:27017"
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=admin
+      - MONGO_INITDB_ROOT_PASSWORD=secret
+    volumes:
+      - mongo_data:/data/db
+    networks:
+      - app-network
+
+# Red interna para comunicación entre contenedores
+networks:
+  app-network:
+    driver: bridge
+
+# Volumen persistente para MongoDB
+volumes:
+  mongo_data:
