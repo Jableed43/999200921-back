@@ -14,8 +14,9 @@ import { roleEnum } from '../models/usuarioModel.js'
 
 const usuarioRoute = express.Router()
 
-// ── Rutas públicas (sin token) ─────────────────────────────────────────────
+
 usuarioRoute.post('/register', register)
+
 usuarioRoute.post('/login', login)
 
 // ── Rutas protegidas ───────────────────────────────────────────────────────

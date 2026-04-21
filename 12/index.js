@@ -6,6 +6,8 @@ import productRoute from "./src/routes/productRoute.js"
 import categoryRoute from "./src/routes/categoryRoute.js"
 import userRoute from "./src/routes/userRoute.js"
 import purchaseRoute from "./src/routes/purchaseRoute.js"
+import swaggerUi from 'swagger-ui-express'
+import swaggerSpec from "./src/config/swagger.js"
 
 const app = express()
 
@@ -26,7 +28,7 @@ if (process.env.NODE_ENV !== 'test') {
         console.log(`Servidor corriendo en el puerto ${PORT}`)
     })
 }
-
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec) )
 // Rutas
 // Agrupador de rutas de productos
 app.use("/api/product", productRoute)

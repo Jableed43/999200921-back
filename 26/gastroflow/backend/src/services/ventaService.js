@@ -48,7 +48,8 @@ export const createVentaService = async (items, mozoId) => {
         const reservasMap = {}
 
         for (const item of items) {
-            const query = Producto.findOne({ _id: item.producto, activo: true })
+            const productId = item.producto || item.producto_id
+            const query = Producto.findOne({ _id: productId, activo: true })
                 .populate('receta.insumo')
                 .populate('insumo_directo')
 
@@ -56,7 +57,7 @@ export const createVentaService = async (items, mozoId) => {
             const producto = await query
 
             if (!producto) {
-                throw new Error(`Producto no encontrado o inactivo: ${item.producto}`)
+                throw new Error(`Producto no encontrado o inactivo: ${productId}`)
             }
 
             let costo_unitario = 0
@@ -98,7 +99,7 @@ export const createVentaService = async (items, mozoId) => {
             const stockDisponibleVenta = insumo.stock_actual - insumo.stock_reservado
             if (stockDisponibleVenta - cantidad < insumo.stock_minimo) {
                 throw new Error(
-                    `Stock insuficiente para "${insumo.nombre}".`
+                    `Bloqueo por Stock Mínimo: Stock insuficiente para "${insumo.nombre}".`
                 )
             }
         }
